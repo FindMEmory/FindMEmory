@@ -9,7 +9,14 @@ import SwiftUI
 
 struct QuestionDetailView: View {
     var body: some View {
-    Text("QuestionDetailView")
+        NavigationStack{
+            Text("QuestionDetailView")
+            
+            NavigationLink(destination: QuestionEditView()){
+                Text("수정")
+            }
+            
+        }
     }
 }
 

@@ -9,7 +9,23 @@ import SwiftUI
 
 struct MyPageView: View {
     var body: some View {
-        Text("MyPageView")
+        NavigationStack{
+            Text("MyPageView")
+            
+            NavigationLink(destination: EditUserPageView()){
+                Text("Edit")
+            }
+            
+            NavigationLink(destination: MyAskView()){
+                Text("내가 등록한 질문")
+            }
+            NavigationLink(destination: MyPickView()){
+                Text("내가 채택된 질문")
+            }
+            NavigationLink(destination: MyLikeView()){
+                Text("좋아요한 질문")
+            }
+        }
     }
 }
 

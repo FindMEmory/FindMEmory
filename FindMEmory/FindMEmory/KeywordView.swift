@@ -9,7 +9,12 @@ import SwiftUI
 
 struct KeywordView: View {
     var body: some View {
-        Text("KeywordView")
+        NavigationStack{
+            Text("KeywordView")
+            NavigationLink("+ 키워드 카드 만들기", destination: CreateKeywordView())
+            
+            NavigationLink("키워드 카드", destination: KeywordDetailView())
+        }
     }
 }
 

@@ -9,7 +9,17 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
-        Text("HomeView")
+        NavigationStack{
+            
+            Text("HomeView")
+            NavigationLink(destination: NotificationView()){
+                Image(systemName: "bell")
+            }
+            
+            NavigationLink("글 작성하러가기", destination: QuestionEditView())
+            
+            NavigationLink("질문 더보기", destination: QuestionListView())
+        }
     }
 }
 

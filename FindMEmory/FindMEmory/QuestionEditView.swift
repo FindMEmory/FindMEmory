@@ -8,8 +8,23 @@
 import SwiftUI
 
 struct QuestionEditView: View {
+    @State private var successEdit: Bool = false
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        Text("QuestionEditView")
+        NavigationStack{
+            VStack{
+                Text("QuestionEditView")
+                Button(action: {
+                    successEdit.toggle()
+                    if successEdit {
+                        dismiss()
+                    }
+                }, label: {
+                    Text("수정하기")
+                })
+            }
+        }
     }
 }
 

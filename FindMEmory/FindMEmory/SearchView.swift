@@ -9,7 +9,16 @@ import SwiftUI
 
 struct SearchView: View {
     var body: some View {
-        Text("SearchView")
+        NavigationStack{
+            Text("SearchView")
+            NavigationLink(destination: KeywordDetailView()){
+                Text("키워드 카드")
+            }
+            NavigationLink(destination:  QuestionDetailView()){
+                Text("게시글")
+            }
+
+        }
     }
 }
 

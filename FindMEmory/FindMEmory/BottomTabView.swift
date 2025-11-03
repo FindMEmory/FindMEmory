@@ -9,9 +9,22 @@ import SwiftUI
 
 struct BottomTabView: View {
     var body: some View {
-        Text("BottomTabView")
+        TabView {
+            Tab("홈", systemImage: "house.fill"){
+                HomeView()
+            }
+            Tab("검색", systemImage: "magnifyingglass"){
+                SearchView()
+            }
+            Tab("키워드", image: "keyword"){
+                KeywordView()
+            }
+            Tab("마이 페이지", systemImage: "person.circle"){
+                MyPageView()
+            }
+        }
+        .navigationBarBackButtonHidden()
     }
-    
 }
 
 #Preview {

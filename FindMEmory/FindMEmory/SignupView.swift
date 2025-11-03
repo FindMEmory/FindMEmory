@@ -8,8 +8,22 @@
 import SwiftUI
 
 struct SignupView: View {
+    
+    @State private var successSignup: Bool = false
+    
     var body: some View {
-        Text("SignupView")
+        NavigationStack{
+            VStack{
+                Button(action: {
+                    successSignup.toggle()
+                }, label: {
+                        Text("signup")
+                })
+            }
+            .navigationDestination(isPresented: $successSignup) {
+                LoginView()
+            }
+        }
     }
 }
 

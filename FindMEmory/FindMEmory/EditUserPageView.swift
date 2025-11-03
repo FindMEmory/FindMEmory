@@ -8,8 +8,22 @@
 import SwiftUI
 
 struct EditUserPageView: View {
+    @State private var successEdit: Bool = false
+    
     var body: some View {
-        Text("EditUserPageView")
+        NavigationStack{
+            VStack{
+                Text("EditUserPageView")
+                Button(action: {
+                    successEdit.toggle()
+                }, label: {
+                    Text("수정하기")
+                })
+            }
+            .navigationDestination(isPresented: $successEdit) {
+                MyPageView()
+            }
+        }
     }
 }
 
