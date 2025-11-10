@@ -13,6 +13,9 @@ struct CreateKeywordView: View {
     @State private var successCreate: Bool = false
     @Environment(\.dismiss) private var dismiss
     
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
+    
     @State private var keywordName: String = ""
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImage: UIImage? = nil
@@ -29,6 +32,9 @@ struct CreateKeywordView: View {
                 registerButton
             }
             .padding(.horizontal, 15)
+            .alert(alertMessage, isPresented: $showAlert) {
+                Button("확인", role: .cancel) { }
+            }
         }.navigationTitle("키워드 카드 만들기")
     }
     
@@ -107,8 +113,9 @@ struct CreateKeywordView: View {
     
     var registerButton:some View{
         Button(action: {
-            successCreate.toggle()
-            dismiss()
+            Task {
+                await registerKeyword()
+            }
         }, label: {
             Text("등록하기")
                 .foregroundStyle(.white)
@@ -120,6 +127,57 @@ struct CreateKeywordView: View {
                 )
         })
     }
+    
+    
+    func registerKeyword() async {
+
+        guard !keywordName.trimmingCharacters(in: .whitespaces).isEmpty else {
+            alertMessage = "키워드명을 입력해주세요."
+            showAlert = true
+            return
+        }
+        
+        guard let url = URL(string: "http://localhost/findmemory/add_keyword.php") else {
+            alertMessage = "서버 주소가 올바르지 않습니다."
+            showAlert = true
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let bodyString = "name=\(keywordName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+        request.httpBody = bodyString.data(using: .utf8)
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                alertMessage = "서버 응답 코드: \(httpResponse.statusCode)"
+                showAlert = true
+                return
+            }
+            
+            if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+               let success = json["success"] as? Bool {
+                if success {
+                    DispatchQueue.main.async {
+                        successCreate = true
+                        dismiss()
+                    }
+                } else {
+                    alertMessage = (json["error"] as? String) ?? "등록에 실패했습니다."
+                    showAlert = true
+                }
+            } else {
+                alertMessage = "서버 응답을 해석할 수 없습니다."
+                showAlert = true
+            }
+        } catch {
+            alertMessage = "네트워크 오류: \(error.localizedDescription)"
+            showAlert = true
+        }
+    }
+
 }
 
 #Preview {
