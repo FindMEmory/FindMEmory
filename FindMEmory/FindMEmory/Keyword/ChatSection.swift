@@ -54,7 +54,6 @@ struct ChatSection: View {
             .padding()
             .background(Color(.systemGray6))
         }
-        .navigationTitle("실시간 채팅")
     }
 
     private func sendMessage() {

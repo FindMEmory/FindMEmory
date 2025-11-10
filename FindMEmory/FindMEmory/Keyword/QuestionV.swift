@@ -17,8 +17,10 @@ struct QuestionV: View {
             Image(systemName: "photo")
                 .resizable()
                 .frame(width: 107, height: 107)
+                .foregroundStyle(.black)
             Text("\(questionTitle)")
                 .frame(width: 110, alignment: .leading)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
                 .lineLimit(2)
                 .fixedSize(horizontal: true, vertical: true)
@@ -27,9 +29,11 @@ struct QuestionV: View {
                 Image(systemName: "heart.fill")
                     .foregroundStyle(.pink)
                 Text("\(likeCount)")
+                    .foregroundStyle(.black)
                 Image(systemName: "ellipsis.message.fill")
                     .foregroundStyle(.blue)
                 Text("\(commentCount)")
+                    .foregroundStyle(.black)
             }
             .frame(width: 110, alignment: .trailing)
         }

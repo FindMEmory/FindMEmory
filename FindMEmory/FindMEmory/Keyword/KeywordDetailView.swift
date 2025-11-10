@@ -16,16 +16,19 @@ struct KeywordDetailView: View {
     @State var searchKeyword: String = ""
     
     var body: some View {
-        VStack {
-            header
-                .padding(20)
-            searchBar
-                .padding(10)
-            questionList
-                .padding(10)
-            liveChat
+        NavigationStack {
+            VStack {
+                header
+                    .padding(20)
+                searchBar
+                    .padding(10)
+                questionList
+                    .padding(10)
+                liveChat
+            }
+            .padding(.horizontal, 15)
         }
-        .padding(.horizontal, 15)
+        
     }
     
     var header : some View {
@@ -62,25 +65,25 @@ struct KeywordDetailView: View {
             HStack{
                 Text("게시글")
                 Spacer()
-                Button(action: {
-                    
-                }, label: {
+                NavigationLink(destination: QuestionListView()){
                     HStack{
                         Text("더보기")
                         Image(systemName: "chevron.right")
                             .font(.system(size: 15))
                     }
                     .foregroundStyle(.gray)
-                })
+                }
             }
             ScrollView(.horizontal, showsIndicators: false){
                 HStack(spacing: 12) {
                     ForEach(0..<5, id: \.self) { index in
-                        QuestionV(
-                            questionTitle: "이 캐릭터 나온 만화 아는사람 \(index+1)",
-                            likeCount: Int.random(in: 10...100),
-                            commentCount: Int.random(in: 0...50)
-                        )
+                        NavigationLink(destination: QuestionDetailView()) {
+                            QuestionV(
+                                questionTitle: "이 캐릭터 나온 만화 아는사람 \(index+1)",
+                                likeCount: Int.random(in: 10...100),
+                                commentCount: Int.random(in: 0...50)
+                            )
+                        }
                     }
                 }
             }
