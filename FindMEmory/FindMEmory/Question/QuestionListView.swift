@@ -8,14 +8,23 @@
 import SwiftUI
 
 struct QuestionListView: View {
+    let sortItem: SortItem
+    @State private var isSolvedFilter: String = "all"
+    @State private var questions: [Question] = []
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack{
             HeaderGroup
-            FilteringGroup
+            if sortItem.sortKey != "not_solved" {
+                FilteringGroup
+            }
             QuestionListGroup
             Spacer()
+        }
+        .navigationBarBackButtonHidden(true)
+        .task {
+            fetchQuestions()
         }
     }
     
@@ -29,31 +38,47 @@ struct QuestionListView: View {
                 Spacer()
             }
             .padding()
-            Text("최근 질문")
+            Text(sortItem.label)
         }
     }
     
     private var FilteringGroup: some View {
         HStack{
             Spacer().frame(width: 40)
-            Button(action: {}, label: {
+            Button(action: {
+                if isSolvedFilter == "true" {
+                    isSolvedFilter = "all"   
+                } else {
+                    isSolvedFilter = "true"
+                }
+                fetchQuestions()
+            }, label: {
                 Text("해결")
                     .foregroundStyle(.black)
                     .padding(.vertical, 3)
                     .background(
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(.gray, lineWidth: 1)
+                            .fill(isSolvedFilter == "true" ? .green : .white)
                             .frame(width: 68)
                     )
             })
             Spacer().frame(width: 50)
-            Button(action: {}, label: {
+            Button(action: {
+                if isSolvedFilter == "false" {
+                    isSolvedFilter = "all"
+                } else {
+                    isSolvedFilter = "false"
+                }
+                fetchQuestions()
+            }, label: {
                 Text("미해결")
                     .foregroundStyle(.black)
                     .padding(.vertical, 3)
                     .background(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(.gray, lineWidth: 1)
+                            .stroke(.gray, lineWidth: 1)                            .fill(isSolvedFilter == "false" ? .green : .white)
+                        
                             .frame(width: 68)
                     )
             })
@@ -62,19 +87,49 @@ struct QuestionListView: View {
     }
     
     private var QuestionListGroup: some View {
-        QuestionCardView(card: QuestionCard(
-            image: Image(systemName: "photo"),
-            solving: true,
-            title: "SwiftUI 질문입니다",
-            content: "List 안에서 ForEach를 사용할 때 id를 어떻게 줘야 하는지 궁금합니다.",
-            heartCount: 12,
-            chattingCount: 3,
-            writer: "서영",
-            date: "2025-11-03"
-        ))
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(questions, id: \.question_id) { q in
+                    QuestionCardView(
+                        card: QuestionCard(
+                            image: Image(systemName: "photo"),
+                            solving: q.is_solved == "1",
+                            title: q.title,
+                            content: q.body,
+                            heartCount: Int(q.like_count) ?? 0,
+                            chattingCount: Int(q.answer_count) ?? 0,
+                            writer: q.author_id,
+                            date: q.created_at
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    func fetchQuestions() {
+        guard let url = URL(string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)") else { return }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                do {
+                    let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.questions = decoded.data
+                    }
+                } catch {
+                    print("Decode 실패:", error)
+                }
+            }
+        }.resume()
     }
 }
 
 #Preview {
-    QuestionListView()
+    QuestionListView(sortItem: SortItem(
+        label: "인기 질문",
+        sortKey: "like"
+    ))
+    
 }
+
