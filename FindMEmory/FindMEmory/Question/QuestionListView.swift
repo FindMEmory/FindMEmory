@@ -15,7 +15,9 @@ struct QuestionListView: View {
     var body: some View {
         VStack{
             HeaderGroup
-            FilteringGroup
+            if sortItem.sortKey != "not_solved" {
+                FilteringGroup
+            }
             QuestionListGroup
             Spacer()
         }
