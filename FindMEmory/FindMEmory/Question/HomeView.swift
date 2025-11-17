@@ -16,13 +16,18 @@ struct HomeView: View {
                 GoWriteGroup
                     .padding(.horizontal)
                 QuestionRowListGroup(sortItem: SortItem(
-                    sortItem: "인기 질문"
+                    label: "인기 질문",
+                    sortKey: "like"
                 ))
+
                 QuestionRowListGroup(sortItem: SortItem(
-                    sortItem: "최근 질문"
+                    label: "최근 질문",
+                    sortKey: "date"
                 ))
+
                 QuestionRowListGroup(sortItem: SortItem(
-                    sortItem: "답변을 기다리고 있어요"
+                    label: "답변을 기다리고 있어요",
+                    sortKey: "not_solved"
                 ))
             }}
     }
