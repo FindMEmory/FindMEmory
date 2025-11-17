@@ -19,6 +19,7 @@ struct QuestionListView: View {
             QuestionListGroup
             Spacer()
         }
+        .navigationBarBackButtonHidden(true)  
         .task {
             fetchQuestions()
         }
