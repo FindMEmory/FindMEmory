@@ -5,43 +5,50 @@
 //  Created by 권예원 on 10/27/25.
 //
 
+//
+//  Keyword.swift
+//  FindMEmory
+//
+//  Created by 권예원 on 10/27/25.
+//
+
 import SwiftUI
 
-struct Keyword : View {
+struct Keyword: View {
     
-    var keywordName : String = "상속자들"
-    var questionCount : Int = 0
-    var participantCount : Int = 0
+    var keywordName: String     // 서버에서 받은 name
+    var questionCount: Int = 0  // 지금은 더미
+    var participantCount: Int = 0  // 더미
     
     var body: some View {
-        VStack(alignment: .leading){
+        VStack(alignment: .leading) {
+            
             Text(keywordName)
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.black)
-            Group{
+                .foregroundColor(.black)
+            
+            Group {
                 Text("게시글 \(questionCount)")
                 Text("현재 \(participantCount)명 참여중")
             }
             .font(.system(size: 12))
-            .foregroundStyle(.gray)
-
+            .foregroundColor(.gray)
+            
             Spacer().frame(height: 10)
             
             Image(systemName: "photo")
                 .resizable()
                 .frame(width: 120, height: 120)
-                .foregroundStyle(.black)
+                .foregroundColor(.black)
         }
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 15)
                 .stroke(.gray, style: StrokeStyle(lineWidth: 1))
-                
         )
     }
 }
 
 #Preview {
-    Keyword()
+    Keyword(keywordName: "상속자들")
 }
-

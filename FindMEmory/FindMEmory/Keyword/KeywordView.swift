@@ -9,6 +9,7 @@ import SwiftUI
 
 struct KeywordView: View {
     @State var keywordQuery:String = ""
+    @State private var keywordList: [KeywordModel] = []
     
     var body: some View {
         NavigationStack{
@@ -22,10 +23,51 @@ struct KeywordView: View {
                 newestKeywords
                 Spacer()
             }
+            .onAppear {
+                fetchKeywords()
+            }
             .padding(.horizontal, 15)
         }
             
     }
+    
+    func fetchKeywords() {
+        guard let url = URL(string: "http://127.0.0.1/findmemory/get_keywords.php") else {
+            print("❌ URL Error")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            
+            if let error = error {
+                print("❌ 요청 에러:", error)
+                return
+            }
+            
+            guard let data = data else {
+                print("❌ 데이터 없음")
+                return
+            }
+            
+            let str = String(decoding: data, as: UTF8.self)
+            print("📨 서버 응답:", str)
+            
+            do {
+                let decoder = JSONDecoder()
+                let response = try decoder.decode(KeywordListResponse.self, from: data)
+                
+                DispatchQueue.main.async {
+                    if response.success {
+                        self.keywordList = response.keywords
+                    }
+                }
+            } catch {
+                print("❌ 디코딩 오류:", error)
+            }
+            
+        }.resume()
+    }
+
     
     var searchBar: some View {
         TextField("검색", text: $keywordQuery)
@@ -47,28 +89,29 @@ struct KeywordView: View {
     }
     
     var popularKeywords: some View {
-        VStack(alignment:.leading, spacing: 15){
+        VStack(alignment: .leading, spacing: 15) {
             Text("인기 키워드 카드")
-            ScrollView(.horizontal, showsIndicators: false){
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
-                    ForEach(0..<5, id: \.self) { _ in
-                        NavigationLink(destination: KeywordDetailView()){
-                            Keyword()
+                    ForEach(keywordList) { item in
+                        NavigationLink(destination: KeywordDetailView()) {
+                            Keyword(keywordName: item.name)
                         }
                     }
                 }
             }
         }
     }
+
     
     var newestKeywords: some View {
         VStack(alignment:.leading, spacing: 15){
             Text("최근 키워드 카드")
-            ScrollView(.horizontal, showsIndicators: false){
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
-                    ForEach(0..<5, id: \.self) { _ in
-                        NavigationLink(destination: KeywordDetailView()){
-                            Keyword()
+                    ForEach(keywordList) { item in
+                        NavigationLink(destination: KeywordDetailView()) {
+                            Keyword(keywordName: item.name)
                         }
                     }
                 }

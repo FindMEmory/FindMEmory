@@ -113,9 +113,7 @@ struct CreateKeywordView: View {
     
     var registerButton:some View{
         Button(action: {
-            Task {
-                await registerKeyword()
-            }
+            registerKeyword()
         }, label: {
             Text("등록하기")
                 .foregroundStyle(.white)
@@ -129,54 +127,59 @@ struct CreateKeywordView: View {
     }
     
     
-    func registerKeyword() async {
-
-        guard !keywordName.trimmingCharacters(in: .whitespaces).isEmpty else {
-            alertMessage = "키워드명을 입력해주세요."
-            showAlert = true
-            return
-        }
+    func registerKeyword() {
         
-        guard let url = URL(string: "http://localhost/findmemory/add_keyword.php") else {
-            alertMessage = "서버 주소가 올바르지 않습니다."
-            showAlert = true
+        guard let url = URL(string: "http://127.0.0.1/findmemory/add_keyword.php") else {
+            print("❌ URL ERROR")
             return
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        let bodyString = "name=\(keywordName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-        request.httpBody = bodyString.data(using: .utf8)
         
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                alertMessage = "서버 응답 코드: \(httpResponse.statusCode)"
-                showAlert = true
+        let body = "name=\(keywordName)"
+        let encodedData = body.data(using: .utf8)
+        request.httpBody = encodedData
+        
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
+            
+            if let error = error {
+                print("요청 에러:", error)
                 return
             }
             
-            if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let success = json["success"] as? Bool {
-                if success {
-                    DispatchQueue.main.async {
-                        successCreate = true
-                        dismiss()
-                    }
-                } else {
-                    alertMessage = (json["error"] as? String) ?? "등록에 실패했습니다."
-                    showAlert = true
-                }
-            } else {
-                alertMessage = "서버 응답을 해석할 수 없습니다."
-                showAlert = true
+            guard let data = data else {
+                print("data 없음")
+                return
             }
-        } catch {
-            alertMessage = "네트워크 오류: \(error.localizedDescription)"
-            showAlert = true
-        }
+            
+            let str = String(decoding: data, as: UTF8.self)
+            print("서버 응답:", str)
+            
+            do {
+                let decoder = JSONDecoder()
+                let jsonResponse = try decoder.decode(CreateKeywordResponse.self, from: data)
+                
+                DispatchQueue.main.async {
+                    if jsonResponse.success {
+                        print("등록 성공:", jsonResponse)
+                        alertMessage = "키워드 카드가 등록되었습니다."
+                        showAlert = true
+                        dismiss()
+                    } else {
+                        print("서버 오류:", jsonResponse.error ?? "오류가 발생했습니다.")
+                        alertMessage = jsonResponse.error ?? "등록을 실패했습니다."
+                        showAlert = true
+                    }
+                }
+                
+            } catch {
+                print("JSON 디코딩 오류:", error)
+            }
+            
+        }.resume()
     }
+
 
 }
 
