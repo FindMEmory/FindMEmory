@@ -46,7 +46,10 @@ struct QuestionRowListGroup: View {
                     Text(sortItem.label)
                     
                     Spacer()
-                    NavigationLink("더보기", destination: QuestionListView())
+                    NavigationLink("더보기") {
+                        QuestionListView(sortItem: sortItem)
+                    }
+
                 }
                 .padding(.horizontal)
                 HStack {
