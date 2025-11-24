@@ -7,27 +7,58 @@
 
 import SwiftUI
 
+struct ChatMessageDTO: Codable, Identifiable {
+    let chat_id: Int
+    let keyword_id: Int
+    let sender_id: Int
+    let body: String
+    let created_at: String
+    let user_name: String
+
+    var id: Int { chat_id }
+}
+
+extension ChatMessageDTO {
+    func toUIMessage(myId: Int) -> Message {
+        Message(
+            user: self.user_name,
+            text: self.body,
+            time: convertDate(self.created_at),
+            isMe: self.sender_id == myId,
+            profileImage: "person.circle.fill"
+        )
+    }
+    func convertDate(_ str: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.date(from: str) ?? Date()
+    }
+}
+
+
 struct Message: Identifiable {
     let id: UUID = UUID()
     let user: String
     let text: String
     let time: Date
     let isMe: Bool
-    let profileImage: String // 시스템 이미지명 또는 URL
+    let profileImage: String
 }
 
 
 struct ChatSection: View {
     
-    @State private var messages: [Message] = [
-        Message(user: "김탄", text: "너나좋아하냐", time: Date() , isMe: false, profileImage:  "person.circle.fill"),
-        Message(user: "차은상", text: "하하하하하하하하하하하",time: Date(), isMe: true, profileImage:  "person.circle.fill")
-    ]
+    let myUserId = 1001
+    let keywordId = 4
+    
+    @State private var messages: [Message] = []
     @State private var newMessage: String = ""
+    @State private var lastId: Int = 0
     
     var body: some View {
         VStack(spacing: 0) {
-            // 채팅 리스트
+
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 8) {
@@ -54,17 +85,84 @@ struct ChatSection: View {
             .padding()
             .background(Color(.systemGray6))
         }
+        .onAppear{
+            startFetchMessage()
+        }
     }
 
     private func sendMessage() {
         guard !newMessage.isEmpty else { return }
-        messages.append(Message(user: "나",
-                                text: newMessage,
-                                time: Date(),
-                                isMe: true,
-                                profileImage:  "person.circle.fill"))
+        
+        let url = URL(string: "http://localhost/findmemory/sendMessage.php")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded",
+                         forHTTPHeaderField: "Content-Type")
+        
+        let bodyString = "keyword_id=\(keywordId)&sender_id=\(myUserId)&body=\(newMessage)"
+        request.httpBody = bodyString.data(using: .utf8)
+        
+        URLSession.shared.dataTask(with: request).resume()
+        
+        messages.append(
+            Message(
+                user: "나",
+                text: newMessage,
+                time: Date(),
+                isMe: true,
+                profileImage: "person.circle.fill"
+            )
+        )
         newMessage = ""
     }
+    
+    func startFetchMessage() {
+
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            
+            guard let url = URL(string:
+                    "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
+            ) else {
+                print("URL Error")
+                return
+            }
+            
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                
+                if let error = error {
+                    print("요청 에러:", error)
+                    return
+                }
+                
+                guard let data = data else {
+                    print("데이터 없음")
+                    return
+                }
+                
+                let str = String(decoding: data, as: UTF8.self)
+                print("서버 응답:", str)
+                
+                do {
+                    let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data)
+                    
+                    if dtos.isEmpty == false {
+                        DispatchQueue.main.async {
+                            for dto in dtos {
+                                let uiMsg = dto.toUIMessage(myId: myUserId)
+                                messages.append(uiMsg)
+                            }
+                            lastId = dtos.last?.chat_id ?? lastId
+                        }
+                    }
+                    
+                } catch {
+                    print("디코딩 오류:", error)
+                }
+                
+            }.resume()
+        }
+    }
+
 }
 
 struct ChatInputView: View {
