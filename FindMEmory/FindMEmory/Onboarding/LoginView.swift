@@ -13,6 +13,7 @@ struct LoginView: View {
     @State private var goMain = false
     @State private var showAlert = false
     @State private var msg = ""
+    @AppStorage("user_id") var userId: Int = 0
     
     var body: some View {
         NavigationStack {
@@ -83,7 +84,7 @@ struct LoginView: View {
         guard !loginId.isEmpty else { msg = "아이디를 입력하세요."; showAlert = true; return }
         guard !loginPwd.isEmpty else { msg = "비밀번호를 입력하세요."; showAlert = true; return }
         
-        guard let url = URL(string: "http://localhost/findmemory/login.php") else {
+        guard let url = URL(string: "http://localhost/findmemory/OnBoarding/login.php") else {
             msg = "URL 오류"; showAlert = true; return
         }
         
@@ -110,12 +111,26 @@ struct LoginView: View {
             print("login response:", str)
             
             DispatchQueue.main.async {
-                if str.contains("성공") || str == "1" {
+                if let id = Int(str), id > 0 {
+                    userId = id
+                    print("로그인 성공 - user_id 저장됨:", id)
                     goMain = true
-                } else {
-                    msg = "로그인 실패: \(str)"
-                    showAlert = true
+                    return
                 }
+                
+                if let data = str.data(using: .utf8),
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let status = json["status"] as? String,
+                   status == "success",
+                   let id = json["user_id"] as? Int {
+                    userId = id
+                    print("로그인 성공(JSON) - user_id 저장됨:", id)
+                    goMain = true
+                    return
+                }
+                
+                msg = "로그인 실패: \(str)"
+                showAlert = true
             }
         }.resume()
     }

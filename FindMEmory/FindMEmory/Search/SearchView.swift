@@ -14,7 +14,7 @@ struct SearchView: View {
             NavigationLink(destination: KeywordDetailView()){
                 Text("키워드 카드")
             }
-            NavigationLink(destination:  QuestionDetailView()){
+            NavigationLink(destination:  QuestionDetailView(questionId: 1)){
                 Text("게시글")
             }
 

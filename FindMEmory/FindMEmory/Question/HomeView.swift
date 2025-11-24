@@ -16,7 +16,7 @@ struct HomeView: View {
                 Image(systemName: "bell")
             }
             
-            NavigationLink("글 작성하러가기", destination: QuestionEditView())
+            NavigationLink("글 작성하러가기", destination: AddQuestionView())
             
             NavigationLink("질문 더보기", destination: QuestionListView())
         }
