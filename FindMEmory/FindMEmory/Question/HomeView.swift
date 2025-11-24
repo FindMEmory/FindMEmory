@@ -56,7 +56,7 @@ struct HomeView: View {
             Text("오늘은 어떤 기억을 떠올렸나요?")
                 .font(.headline)
                 .bold()
-            NavigationLink("글 작성하러가기", destination: QuestionEditView())
+            NavigationLink("글 작성하러가기", destination: AddQuestionView())
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding()
