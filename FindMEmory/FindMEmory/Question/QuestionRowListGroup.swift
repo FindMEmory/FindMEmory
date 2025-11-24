@@ -12,6 +12,7 @@ struct SortItem {
     let sortKey: String
 }
 
+nonisolated
 struct QuestionResponse: Codable {
     let success: Bool
     let sort: String
@@ -25,6 +26,9 @@ struct MyQuestionResponse: Codable {
 }
 
 struct Question: Codable, Identifiable, Sendable {
+
+    var id: Int { question_id }
+
     let question_id: Int
     let author_id: Int
     let body: String
@@ -34,11 +38,9 @@ struct Question: Codable, Identifiable, Sendable {
     let like_count: Int
     let view_count: Int
     let is_solved: Int
+   
     let created_at: String
     let updated_at: String?
-
-    // 🔥 Identifiable을 위한 id → question_id 사용
-    var id: Int { question_id }
 
     // 🔥 JSON에서 디코딩할 키 지정 (id는 제외!)
     enum CodingKeys: String, CodingKey {
@@ -77,6 +79,7 @@ struct QuestionRowListGroup: View {
                                 chattingCount: Int(q.answer_count)
                             )
                         )
+
                     }
                     
                 }
