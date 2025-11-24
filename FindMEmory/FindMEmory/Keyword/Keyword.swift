@@ -16,9 +16,9 @@ import SwiftUI
 
 struct Keyword: View {
     
-    var keywordName: String     // 서버에서 받은 name
-    var questionCount: Int = 0  // 지금은 더미
-    var participantCount: Int = 0  // 더미
+    var keywordName: String
+    var questionCount: Int = 0
+    var participantCount: Int = 0  
     
     var body: some View {
         VStack(alignment: .leading) {

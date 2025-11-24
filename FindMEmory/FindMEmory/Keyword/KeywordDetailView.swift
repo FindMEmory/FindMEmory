@@ -6,14 +6,38 @@
 //
 
 import SwiftUI
+import Combine
+
+class KeyboardResponder: ObservableObject {
+    @Published var currentHeight: CGFloat = 0
+    
+    private var cancellableSet: Set<AnyCancellable> = []
+
+    init() {
+        let willShow = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+
+        let willHide = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+
+        Publishers.Merge(willShow, willHide)
+            .assign(to: \.currentHeight, on: self)
+            .store(in: &cancellableSet)
+    }
+}
+
 
 struct KeywordDetailView: View {
     
-    var keywordName : String = "상속자들"
+    let keyword : KeywordModel
     var questionCount : Int = 0
     var participantCount : Int = 0
     
     @State var searchKeyword: String = ""
+    @StateObject private var keyboard = KeyboardResponder()
     
     var body: some View {
         NavigationStack {
@@ -26,6 +50,7 @@ struct KeywordDetailView: View {
                     .padding(10)
                 liveChat
             }
+            .padding(.bottom, keyboard.currentHeight)
             .padding(.horizontal, 15)
         }
         
@@ -37,7 +62,7 @@ struct KeywordDetailView: View {
                 .resizable()
                 .frame(width: 80, height: 80)
             VStack(alignment:.leading){
-                Text(keywordName)
+                Text(keyword.name)
                     .font(.system(size: 20, weight: .bold))
                 Group{
                     Text("게시글 \(questionCount)")
@@ -61,33 +86,12 @@ struct KeywordDetailView: View {
     
     
     var questionList : some View {
-        VStack(){
-            HStack{
-                Text("게시글")
-                Spacer()
-                NavigationLink(destination: QuestionListView()){
-                    HStack{
-                        Text("더보기")
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 15))
-                    }
-                    .foregroundStyle(.gray)
-                }
-            }
-            ScrollView(.horizontal, showsIndicators: false){
-                HStack(spacing: 12) {
-                    ForEach(0..<5, id: \.self) { index in
-                        NavigationLink(destination: QuestionDetailView()) {
-                            QuestionV(
-                                questionTitle: "이 캐릭터 나온 만화 아는사람 \(index+1)",
-                                likeCount: Int.random(in: 10...100),
-                                commentCount: Int.random(in: 0...50)
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        
+        QuestionRowByKeywordGroup(
+            keywordId: keyword.id,
+            keywordName: keyword.name
+        )
+
 
     }
     
@@ -104,5 +108,11 @@ struct KeywordDetailView: View {
 }
 
 #Preview {
-    KeywordDetailView()
+    KeywordDetailView(
+        keyword: KeywordModel(
+            id: 1,
+            name: "상속자들",
+            created_at: "2025-11-17 10:00:00"
+        )
+    )
 }

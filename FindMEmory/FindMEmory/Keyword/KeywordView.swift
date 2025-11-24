@@ -32,25 +32,25 @@ struct KeywordView: View {
     }
     
     func fetchKeywords() {
-        guard let url = URL(string: "http://127.0.0.1/findmemory/get_keywords.php") else {
-            print("❌ URL Error")
+        guard let url = URL(string: "http://127.0.0.1/findmemory/get_keyword.php") else {
+            print("URL Error")
             return
         }
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             
             if let error = error {
-                print("❌ 요청 에러:", error)
+                print("요청 에러:", error)
                 return
             }
             
             guard let data = data else {
-                print("❌ 데이터 없음")
+                print("데이터 없음")
                 return
             }
             
             let str = String(decoding: data, as: UTF8.self)
-            print("📨 서버 응답:", str)
+            print("서버 응답:", str)
             
             do {
                 let decoder = JSONDecoder()
@@ -62,7 +62,7 @@ struct KeywordView: View {
                     }
                 }
             } catch {
-                print("❌ 디코딩 오류:", error)
+                print("디코딩 오류:", error)
             }
             
         }.resume()
@@ -94,7 +94,7 @@ struct KeywordView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
                     ForEach(keywordList) { item in
-                        NavigationLink(destination: KeywordDetailView()) {
+                        NavigationLink(destination: KeywordDetailView(keyword: item)) {
                             Keyword(keywordName: item.name)
                         }
                     }
@@ -110,7 +110,7 @@ struct KeywordView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
                     ForEach(keywordList) { item in
-                        NavigationLink(destination: KeywordDetailView()) {
+                        NavigationLink(destination: KeywordDetailView(keyword: item)) {
                             Keyword(keywordName: item.name)
                         }
                     }

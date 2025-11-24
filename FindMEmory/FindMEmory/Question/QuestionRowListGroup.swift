@@ -12,6 +12,7 @@ struct SortItem {
     let sortKey: String 
 }
 
+nonisolated
 struct QuestionResponse: Codable {
     let success: Bool
     let sort: String
@@ -19,16 +20,16 @@ struct QuestionResponse: Codable {
 }
 
 struct Question: Codable, Identifiable, Sendable {
-    var id: String { question_id }
-    let question_id: String
-    let author_id: String
+    var id: Int { question_id }
+    let question_id: Int
+    let author_id: Int
     let body: String
-    let keyword_id: String
-    let answer_count: String
+    let keyword_id: Int?
+    let answer_count: Int
     let title: String
-    let like_count: String
-    let view_count: String
-    let is_solved: String
+    let like_count: Int
+    let view_count: Int
+    let is_solved: Int          
     let created_at: String
     let updated_at: String?
 }
@@ -53,10 +54,10 @@ struct QuestionRowListGroup: View {
                         QuestionBoxItemView(
                             card: QuestionBoxItem(
                                 image: Image(systemName: "photo"),
-                                solving: q.is_solved == "1",
+                                solving: q.is_solved == 1,
                                 title: q.title,
-                                heartCount: Int(q.like_count) ?? 0,
-                                chattingCount: Int(q.answer_count) ?? 0
+                                heartCount: q.like_count,   
+                                chattingCount: q.answer_count
                             )
                         )
                     }
