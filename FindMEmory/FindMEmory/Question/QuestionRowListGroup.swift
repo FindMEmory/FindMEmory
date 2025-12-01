@@ -19,6 +19,12 @@ struct QuestionResponse: Codable {
     let data: [Question]
 }
 
+struct MyQuestionResponse: Codable {
+    let success: Bool
+    let user_id: Int
+    let data: [Question]
+}
+
 struct Question: Codable, Identifiable, Sendable {
     var id: Int { question_id }
     let question_id: Int
