@@ -25,18 +25,27 @@ struct MyQuestionResponse: Codable {
 }
 
 struct Question: Codable, Identifiable, Sendable {
-    var id: String { question_id }
-    let question_id: String
-    let author_id: String
+    let question_id: Int
+    let author_id: Int
     let body: String
-    let keyword_id: String
-    let answer_count: String
+    let keyword_id: Int
+    let answer_count: Int
     let title: String
-    let like_count: String
-    let view_count: String
-    let is_solved: String
+    let like_count: Int
+    let view_count: Int
+    let is_solved: Int
     let created_at: String
     let updated_at: String?
+
+    // 🔥 Identifiable을 위한 id → question_id 사용
+    var id: Int { question_id }
+
+    // 🔥 JSON에서 디코딩할 키 지정 (id는 제외!)
+    enum CodingKeys: String, CodingKey {
+        case question_id, author_id, body, keyword_id,
+             answer_count, title, like_count, view_count,
+             is_solved, created_at, updated_at
+    }
 }
 
 struct QuestionRowListGroup: View {
@@ -62,10 +71,10 @@ struct QuestionRowListGroup: View {
                         QuestionBoxItemView(
                             card: QuestionBoxItem(
                                 image: Image(systemName: "photo"),
-                                solving: q.is_solved == "1",
+                                solving: q.is_solved == 1,
                                 title: q.title,
-                                heartCount: Int(q.like_count) ?? 0,
-                                chattingCount: Int(q.answer_count) ?? 0
+                                heartCount: Int(q.like_count),
+                                chattingCount: Int(q.answer_count)
                             )
                         )
                     }

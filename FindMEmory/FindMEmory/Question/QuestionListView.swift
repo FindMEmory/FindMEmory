@@ -14,17 +14,19 @@ struct QuestionListView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack{
-            HeaderGroup
-            if sortItem.sortKey != "not_solved" {
-                FilteringGroup
+        NavigationStack{
+            VStack{
+                HeaderGroup
+                if sortItem.sortKey != "not_solved" {
+                    FilteringGroup
+                }
+                QuestionListGroup
+                Spacer()
             }
-            QuestionListGroup
-            Spacer()
-        }
-        .navigationBarBackButtonHidden(true)
-        .task {
-            fetchQuestions()
+            .navigationBarBackButtonHidden(true)
+            .task {
+                fetchQuestions()
+            }
         }
     }
     
@@ -92,12 +94,13 @@ struct QuestionListView: View {
                 ForEach(questions, id: \.question_id) { q in
                     QuestionCardView(
                         card: QuestionCard(
+                            id: q.question_id,
                             image: Image(systemName: "photo"),
-                            solving: q.is_solved == "1",
+                            solving: q.is_solved == 1,
                             title: q.title,
                             content: q.body,
-                            heartCount: Int(q.like_count) ?? 0,
-                            chattingCount: Int(q.answer_count) ?? 0,
+                            heartCount: Int(q.like_count),
+                            chattingCount: Int(q.answer_count),
                             writer: q.author_id,
                             date: q.created_at
                         )
