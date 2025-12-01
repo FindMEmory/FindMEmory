@@ -9,10 +9,9 @@ import SwiftUI
 
 struct SortItem {
     let label: String
-    let sortKey: String 
+    let sortKey: String
 }
 
-nonisolated
 struct QuestionResponse: Codable {
     let success: Bool
     let sort: String
@@ -26,7 +25,6 @@ struct MyQuestionResponse: Codable {
 }
 
 struct Question: Codable, Identifiable, Sendable {
-    var id: Int { question_id }
     let question_id: Int
     let author_id: Int
     let body: String
@@ -35,9 +33,19 @@ struct Question: Codable, Identifiable, Sendable {
     let title: String
     let like_count: Int
     let view_count: Int
-    let is_solved: Int          
+    let is_solved: Int
     let created_at: String
     let updated_at: String?
+
+    // 🔥 Identifiable을 위한 id → question_id 사용
+    var id: Int { question_id }
+
+    // 🔥 JSON에서 디코딩할 키 지정 (id는 제외!)
+    enum CodingKeys: String, CodingKey {
+        case question_id, author_id, body, keyword_id,
+             answer_count, title, like_count, view_count,
+             is_solved, created_at, updated_at
+    }
 }
 
 struct QuestionRowListGroup: View {
@@ -65,8 +73,8 @@ struct QuestionRowListGroup: View {
                                 image: Image(systemName: "photo"),
                                 solving: q.is_solved == 1,
                                 title: q.title,
-                                heartCount: q.like_count,   
-                                chattingCount: q.answer_count
+                                heartCount: Int(q.like_count),
+                                chattingCount: Int(q.answer_count)
                             )
                         )
                     }

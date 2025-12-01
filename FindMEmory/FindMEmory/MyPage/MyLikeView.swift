@@ -45,12 +45,13 @@ struct MyLikeView: View {
                 ForEach(questions, id: \.question_id) { q in
                     QuestionCardView(
                         card: QuestionCard(
+                            id: q.question_id,
                             image: Image(systemName: "photo"),
-                            solving: q.is_solved == "1",
+                            solving: q.is_solved == 1,
                             title: q.title,
                             content: q.body,
-                            heartCount: Int(q.like_count) ?? 0,
-                            chattingCount: Int(q.answer_count) ?? 0,
+                            heartCount: Int(q.like_count),
+                            chattingCount: Int(q.answer_count),
                             writer: q.author_id,
                             date: q.created_at
                         )
