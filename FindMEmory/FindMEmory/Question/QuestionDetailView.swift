@@ -39,7 +39,7 @@ struct QuestionDetailView: View {
                     if questionAuthorId == userId {
                         Menu {
                             NavigationLink("수정") {
-<<<<<<< HEAD
+
                                 QuestionEditView(
                                     questionId: questionId,
                                     title: questionTitle,
@@ -50,10 +50,7 @@ struct QuestionDetailView: View {
                                 )
                             }
 
-=======
-                                QuestionEditView()
-                            }
->>>>>>> c53dc73 (✨Feat: 게시글 키워드 카드검색, 등록 및 키워드 카드 참여자수, 게시글 수 기능 추가)
+
                             Button("삭제", role: .destructive) {
                                 deleteQuestion()
                             }
@@ -63,10 +60,7 @@ struct QuestionDetailView: View {
                                 .foregroundColor(.black)
                         }
                     }
-<<<<<<< HEAD
 
-=======
->>>>>>> c53dc73 (✨Feat: 게시글 키워드 카드검색, 등록 및 키워드 카드 참여자수, 게시글 수 기능 추가)
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
@@ -245,9 +239,7 @@ struct QuestionDetailView: View {
 }
 
 #Preview {
-<<<<<<< HEAD
+
     QuestionDetailView(questionId: 10)
-=======
-    QuestionDetailView(questionId: 9)
->>>>>>> c53dc73 (✨Feat: 게시글 키워드 카드검색, 등록 및 키워드 카드 참여자수, 게시글 수 기능 추가)
+
 }

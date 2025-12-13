@@ -8,31 +8,29 @@
 import SwiftUI
 
 struct LoginView: View {
+
     @State private var loginId = ""
     @State private var loginPwd = ""
     @State private var goMain = false
     @State private var showAlert = false
     @State private var msg = ""
-    @AppStorage("user_id") var userId: Int = 0
-<<<<<<< HEAD
-    @AppStorage("is_logged_in") var isLoggedIn: Bool = false
 
-=======
->>>>>>> c53dc73 (✨Feat: 게시글 키워드 카드검색, 등록 및 키워드 카드 참여자수, 게시글 수 기능 추가)
-    
+
+    @AppStorage("user_id") private var userId: Int = 0
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                
-                // 로고
+
                 Spacer()
+
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 120, height: 120)
                     .cornerRadius(8)
+
                 Spacer()
-                
-                // 아이디 입력
+
                 TextField("아이디", text: $loginId)
                     .padding()
                     .overlay(
@@ -40,16 +38,14 @@ struct LoginView: View {
                             .stroke(Color.gray.opacity(0.6), lineWidth: 1)
                     )
                     .textInputAutocapitalization(.never)
-                
-                // 비밀번호 입력
+
                 SecureField("비밀번호", text: $loginPwd)
                     .padding()
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.gray.opacity(0.6), lineWidth: 1)
                     )
-                
-                // 로그인 버튼
+
                 Button {
                     loginAction()
                 } label: {
@@ -61,19 +57,19 @@ struct LoginView: View {
                         .background(Color.gray)
                         .cornerRadius(10)
                 }
-                .alert(isPresented: $showAlert) {
-                    Alert(title: Text("알림"), message: Text(msg), dismissButton: .default(Text("확인")))
+                .alert("알림", isPresented: $showAlert) {
+                    Button("확인", role: .cancel) {}
+                } message: {
+                    Text(msg)
                 }
-                
-                // 회원가입 버튼
+
                 NavigationLink(destination: SignupView()) {
                     Text("회원가입")
                         .font(.system(size: 13))
                         .foregroundColor(.gray)
-                        .underline(false)
                 }
                 .padding(.top, 8)
-                
+
                 Spacer()
             }
             .padding(.horizontal, 30)
@@ -83,26 +79,39 @@ struct LoginView: View {
             }
         }
     }
-    
+
     // MARK: - 로그인 처리
-    func loginAction() {
-        guard !loginId.isEmpty else { msg = "아이디를 입력하세요."; showAlert = true; return }
-        guard !loginPwd.isEmpty else { msg = "비밀번호를 입력하세요."; showAlert = true; return }
-        
-        guard let url = URL(string: "http://localhost/findmemory/login.php") else {
-            msg = "URL 오류"; showAlert = true; return
+    private func loginAction() {
+
+        guard !loginId.isEmpty else {
+            msg = "아이디를 입력하세요."
+            showAlert = true
+            return
         }
-        
+
+        guard !loginPwd.isEmpty else {
+            msg = "비밀번호를 입력하세요."
+            showAlert = true
+            return
+        }
+
+        guard let url = URL(string: "http://localhost/findmemory/login.php") else {
+            msg = "URL 오류"
+            showAlert = true
+            return
+        }
+
         let body = "login_id=\(loginId)&login_pwd=\(loginPwd)"
-        let bodyData = body.data(using: .utf8)
-        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = bodyData
-        request.setValue("application/x-www-form-urlencoded; charset=utf-8",
-                         forHTTPHeaderField: "Content-Type")
-        
+        request.httpBody = body.data(using: .utf8)
+        request.setValue(
+            "application/x-www-form-urlencoded; charset=utf-8",
+            forHTTPHeaderField: "Content-Type"
+        )
+
         URLSession.shared.dataTask(with: request) { data, _, error in
+
             if let error = error {
                 DispatchQueue.main.async {
                     msg = "네트워크 오류: \(error.localizedDescription)"
@@ -110,35 +119,32 @@ struct LoginView: View {
                 }
                 return
             }
-            
-            let str = String(data: data ?? Data(), encoding: .utf8)?
+
+            let response = String(data: data ?? Data(), encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            print("login response:", str)
-            
+
             DispatchQueue.main.async {
-                if let id = Int(str), id > 0 {
+
+
+                if let id = Int(response), id > 0 {
                     userId = id
-                    print("로그인 성공 - user_id 저장됨:", id)
-<<<<<<< HEAD
-                    isLoggedIn = true
-=======
->>>>>>> c53dc73 (✨Feat: 게시글 키워드 카드검색, 등록 및 키워드 카드 참여자수, 게시글 수 기능 추가)
                     goMain = true
                     return
                 }
-                
-                if let data = str.data(using: .utf8),
+
+
+                if let data = response.data(using: .utf8),
                    let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let status = json["status"] as? String,
                    status == "success",
                    let id = json["user_id"] as? Int {
+
                     userId = id
-                    print("로그인 성공(JSON) - user_id 저장됨:", id)
                     goMain = true
                     return
                 }
-                
-                msg = "로그인 실패: \(str)"
+
+                msg = "로그인 실패"
                 showAlert = true
             }
         }.resume()

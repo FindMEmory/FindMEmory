@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// MARK: - DTO
 struct ChatMessageDTO: Codable, Identifiable {
     let chat_id: Int
     let keyword_id: Int
@@ -28,7 +29,8 @@ extension ChatMessageDTO {
             profileImage: "person.circle.fill"
         )
     }
-    func convertDate(_ str: String) -> Date {
+
+    private func convertDate(_ str: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         formatter.locale = Locale(identifier: "ko_KR")
@@ -36,7 +38,7 @@ extension ChatMessageDTO {
     }
 }
 
-
+// MARK: - UI Model
 struct Message: Identifiable {
     let id: UUID = UUID()
     let user: String
@@ -46,16 +48,17 @@ struct Message: Identifiable {
     let profileImage: String
 }
 
-
+// MARK: - Chat Section
 struct ChatSection: View {
 
-    let myUserId : Int
-    let keywordId : Int
+    @AppStorage("user_id") private var myUserId: Int = 0
+
+    // 키워드별 채팅
+    let keywordId: Int
 
     @State private var messages: [Message] = []
     @State private var newMessage: String = ""
     @State private var lastId: Int = 0
-
     @State private var fetchTimer: Timer?
 
     var body: some View {
@@ -94,15 +97,26 @@ struct ChatSection: View {
         }
     }
 
-
+    // MARK: - Send Message
     private func sendMessage() {
+
+        guard myUserId != 0 else {
+            print("⚠️ 로그인 안 된 상태")
+            return
+        }
+
         guard !newMessage.isEmpty else { return }
 
-        let url = URL(string: "http://localhost/findmemory/sendMessage.php")!
+        guard let url = URL(string: "http://localhost/findmemory/sendMessage.php") else {
+            return
+        }
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded",
-                         forHTTPHeaderField: "Content-Type")
+        request.setValue(
+            "application/x-www-form-urlencoded",
+            forHTTPHeaderField: "Content-Type"
+        )
 
         let bodyString =
         "keyword_id=\(keywordId)&sender_id=\(myUserId)&body=\(newMessage)"
@@ -110,6 +124,7 @@ struct ChatSection: View {
 
         URLSession.shared.dataTask(with: request).resume()
 
+        // 낙관적 업데이트
         messages.append(
             Message(
                 user: "나",
@@ -119,42 +134,40 @@ struct ChatSection: View {
                 profileImage: "person.circle.fill"
             )
         )
+
         newMessage = ""
     }
 
-    func startFetchMessage() {
-
+    // MARK: - Fetch Control
+    private func startFetchMessage() {
         stopFetchMessage()
-
         fetchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             fetchMessages()
         }
     }
 
-    func stopFetchMessage() {
+    private func stopFetchMessage() {
         fetchTimer?.invalidate()
         fetchTimer = nil
     }
 
+    // MARK: - Fetch Messages
     private func fetchMessages() {
 
-        guard let url = URL(string:
-            "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
-        ) else {
-            return
-        }
+        guard let url = URL(
+            string: "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
+        ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
+            if let error {
                 print("요청 에러:", error)
                 return
             }
 
-            guard let data = data else { return }
+            guard let data else { return }
 
             do {
                 let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data)
-
                 guard dtos.isEmpty == false else { return }
 
                 DispatchQueue.main.async {
@@ -163,7 +176,6 @@ struct ChatSection: View {
                     }
                     lastId = dtos.last?.chat_id ?? lastId
                 }
-
             } catch {
                 print("디코딩 오류:", error)
             }
@@ -171,7 +183,7 @@ struct ChatSection: View {
     }
 }
 
-
+// MARK: - Input View
 struct ChatInputView: View {
     @Binding var text: String
     var onSend: () -> Void
@@ -190,21 +202,20 @@ struct ChatInputView: View {
     }
 }
 
+// MARK: - Message Row
 struct MessageRow: View {
     let message: Message
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
-            // 왼쪽(상대방 메시지)
+
             if !message.isMe {
-                // 프로필
                 Image(systemName: message.profileImage)
                     .resizable()
                     .frame(width: 36, height: 36)
                     .clipShape(Circle())
                     .foregroundColor(.gray)
 
-                // 이름 + 말풍선 + 시간
                 VStack(alignment: .leading, spacing: 4) {
                     Text(message.user)
                         .font(.caption)
@@ -224,9 +235,7 @@ struct MessageRow: View {
                 }
 
                 Spacer()
-            }
-            // 오른쪽(내 메시지)
-            else {
+            } else {
                 Spacer()
 
                 HStack(alignment: .bottom, spacing: 6) {
@@ -247,8 +256,8 @@ struct MessageRow: View {
     }
 }
 
-
-
+// MARK: - Preview
 #Preview {
-    ChatSection(myUserId: 1, keywordId: 2)
+    UserDefaults.standard.set(1, forKey: "user_id")
+    return ChatSection(keywordId: 2)
 }

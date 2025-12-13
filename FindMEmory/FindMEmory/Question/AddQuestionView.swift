@@ -11,7 +11,9 @@ import UniformTypeIdentifiers
 
 struct AddQuestionView: View {
 
-    // MARK: - State
+    @Environment(\.dismiss) private var dismiss
+
+
     @State private var title = ""
     @State private var content = ""
 
@@ -269,6 +271,12 @@ struct AddQuestionView: View {
             DispatchQueue.main.async {
                 msg = message
                 showAlert = true
+
+                if let status = json["status"] as? String, status == "success" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        dismiss()
+                    }
+                }
             }
 
         }.resume()

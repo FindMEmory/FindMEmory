@@ -10,7 +10,6 @@ import Combine
 
 class KeyboardResponder: ObservableObject {
     @Published var currentHeight: CGFloat = 0
-    
     private var cancellableSet: Set<AnyCancellable> = []
 
     init() {
@@ -29,76 +28,78 @@ class KeyboardResponder: ObservableObject {
     }
 }
 
-
 struct KeywordDetailView: View {
-    
-    let keyword : KeywordModel
-    var questionCount : Int = 0
-    var participantCount : Int = 0
-    
-    @State var searchKeyword: String = ""
+
+    let keyword: KeywordModel
+
+    @State private var searchKeyword: String = ""
     @StateObject private var keyboard = KeyboardResponder()
-    
+
     var body: some View {
         NavigationStack {
             VStack {
                 header
                     .padding(20)
+
                 searchBar
                     .padding(10)
+
                 questionList
                     .padding(10)
+
                 liveChat
             }
             .padding(.bottom, keyboard.currentHeight)
             .padding(.horizontal, 15)
         }
-        
     }
-    
-    var header : some View {
-        HStack(spacing: 20){
+
+    // MARK: - Header
+    private var header: some View {
+        HStack(spacing: 20) {
             Image(systemName: "photo")
                 .resizable()
                 .frame(width: 80, height: 80)
-            VStack(alignment:.leading){
+
+            VStack(alignment: .leading) {
                 Text(keyword.name)
                     .font(.system(size: 20, weight: .bold))
-                Group{
-                    Text("게시글 \(questionCount)")
-                    Text("현재 \(participantCount)명 참여중")
-                }
-                .font(.system(size: 15))
-                .foregroundStyle(.gray)
+
+                Text("게시글 \(keyword.question_count)")
+                Text("현재 \(keyword.participant_count)명 참여중")
             }
+            .font(.system(size: 15))
+            .foregroundStyle(.gray)
+
             Spacer()
         }
     }
-    
-    var searchBar : some View {
+
+    // MARK: - Search
+    private var searchBar: some View {
         TextField("검색", text: $searchKeyword)
             .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 15)
-                    .stroke(.gray,lineWidth: 1)
+                    .stroke(.gray, lineWidth: 1)
             )
     }
-    
-    
-    var questionList : some View {
-        
+
+    // MARK: - Question List
+    private var questionList: some View {
         QuestionRowByKeywordGroup(
             keywordId: keyword.id,
             keywordName: keyword.name
         )
-
-
     }
-    
-    var liveChat : some View {
-        VStack(alignment: .leading){
+
+    // MARK: - Live Chat
+    private var liveChat: some View {
+        VStack(alignment: .leading, spacing: 6) {
             Text("실시간 채팅")
-            ChatSection()
+                .font(.headline)
+
+            ChatSection(keywordId: keyword.id)
                 .background(
                     Rectangle()
                         .foregroundStyle(.gray.opacity(0.1))
@@ -118,4 +119,3 @@ struct KeywordDetailView: View {
         )
     )
 }
-
