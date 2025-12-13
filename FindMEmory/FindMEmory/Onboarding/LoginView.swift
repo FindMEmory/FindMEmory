@@ -14,6 +14,8 @@ struct LoginView: View {
     @State private var showAlert = false
     @State private var msg = ""
     @AppStorage("user_id") var userId: Int = 0
+    @AppStorage("is_logged_in") var isLoggedIn: Bool = false
+
     
     var body: some View {
         NavigationStack {
@@ -114,6 +116,7 @@ struct LoginView: View {
                 if let id = Int(str), id > 0 {
                     userId = id
                     print("로그인 성공 - user_id 저장됨:", id)
+                    isLoggedIn = true
                     goMain = true
                     return
                 }

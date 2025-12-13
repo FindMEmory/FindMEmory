@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct RootView: View {
+    @AppStorage("is_logged_in") var isLoggedIn: Bool = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("RootView")
+        Group {
+            if isLoggedIn {
+                BottomTabView()
+            } else {
+                LoginView()
+            }
         }
-        .padding()
+        .id(isLoggedIn)
     }
 }
 
