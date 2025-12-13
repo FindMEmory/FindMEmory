@@ -18,7 +18,9 @@ nonisolated
 struct KeywordModel: Codable, Identifiable {
     let id: Int
     let name: String
+    let question_count: Int
     let created_at: String
+    let participant_count: Int
 }
 
 nonisolated

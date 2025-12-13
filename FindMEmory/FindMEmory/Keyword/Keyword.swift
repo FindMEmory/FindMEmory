@@ -5,20 +5,13 @@
 //  Created by 권예원 on 10/27/25.
 //
 
-//
-//  Keyword.swift
-//  FindMEmory
-//
-//  Created by 권예원 on 10/27/25.
-//
-
 import SwiftUI
 
 struct Keyword: View {
     
     var keywordName: String
-    var questionCount: Int = 0
-    var participantCount: Int = 0  
+    var questionCount: Int
+    var participantCount: Int
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -50,5 +43,7 @@ struct Keyword: View {
 }
 
 #Preview {
-    Keyword(keywordName: "상속자들")
+    Keyword(keywordName: "상속자들",
+            questionCount: 0,
+            participantCount: 0)
 }

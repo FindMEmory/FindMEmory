@@ -20,6 +20,8 @@ struct CreateKeywordView: View {
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImage: UIImage? = nil
     
+    let onComplete: (KeywordModel) -> Void 
+    
     var body: some View {
         NavigationStack{
             VStack{
@@ -184,5 +186,7 @@ struct CreateKeywordView: View {
 }
 
 #Preview {
-    CreateKeywordView()
+    CreateKeywordView { _ in
+        // preview용 더미 콜백
+    }
 }

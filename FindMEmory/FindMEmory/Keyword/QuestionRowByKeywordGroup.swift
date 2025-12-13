@@ -5,13 +5,6 @@
 //  Created by 권예원 on 11/17/25.
 //
 
-//
-//  QuestionRowByKeywordGroup.swift
-//  FindMEmory
-//
-//  Created by 권예원 on 11/17/25.
-//
-
 import SwiftUI
 
 struct QuestionItemLink: View {
@@ -26,7 +19,7 @@ struct QuestionItemLink: View {
             chattingCount: question.answer_count
         )
 
-        NavigationLink(destination: QuestionDetailView()) {
+        NavigationLink(destination: QuestionDetailView(questionId: question.question_id)) {
             QuestionBoxItemView(card: card)
         }
     }
@@ -46,7 +39,11 @@ struct QuestionRowByKeywordGroup: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: QuestionListView()) {
+                NavigationLink(destination:QuestionListView(
+                    sortItem: nil,
+                    keywordId: keywordId,
+                    keywordName: keywordName
+                )) {
                     Text("더보기")
                         .foregroundColor(.gray)
                         .font(.subheadline)

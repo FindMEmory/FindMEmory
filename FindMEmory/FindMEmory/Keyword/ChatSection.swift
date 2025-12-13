@@ -48,14 +48,16 @@ struct Message: Identifiable {
 
 
 struct ChatSection: View {
-    
-    let myUserId = 1001
-    let keywordId = 4
-    
+
+    let myUserId : Int
+    let keywordId : Int
+
     @State private var messages: [Message] = []
     @State private var newMessage: String = ""
     @State private var lastId: Int = 0
-    
+
+    @State private var fetchTimer: Timer?
+
     var body: some View {
         VStack(spacing: 0) {
 
@@ -78,32 +80,36 @@ struct ChatSection: View {
                 }
             }
 
-            // 하단 입력창
             ChatInputView(text: $newMessage) {
                 sendMessage()
             }
             .padding()
             .background(Color(.systemGray6))
         }
-        .onAppear{
+        .onAppear {
             startFetchMessage()
+        }
+        .onDisappear {
+            stopFetchMessage()
         }
     }
 
+
     private func sendMessage() {
         guard !newMessage.isEmpty else { return }
-        
+
         let url = URL(string: "http://localhost/findmemory/sendMessage.php")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded",
                          forHTTPHeaderField: "Content-Type")
-        
-        let bodyString = "keyword_id=\(keywordId)&sender_id=\(myUserId)&body=\(newMessage)"
+
+        let bodyString =
+        "keyword_id=\(keywordId)&sender_id=\(myUserId)&body=\(newMessage)"
         request.httpBody = bodyString.data(using: .utf8)
-        
+
         URLSession.shared.dataTask(with: request).resume()
-        
+
         messages.append(
             Message(
                 user: "나",
@@ -115,55 +121,56 @@ struct ChatSection: View {
         )
         newMessage = ""
     }
-    
+
     func startFetchMessage() {
 
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            
-            guard let url = URL(string:
-                    "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
-            ) else {
-                print("URL Error")
-                return
-            }
-            
-            URLSession.shared.dataTask(with: url) { data, response, error in
-                
-                if let error = error {
-                    print("요청 에러:", error)
-                    return
-                }
-                
-                guard let data = data else {
-                    print("데이터 없음")
-                    return
-                }
-                
-                let str = String(decoding: data, as: UTF8.self)
-                print("서버 응답:", str)
-                
-                do {
-                    let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data)
-                    
-                    if dtos.isEmpty == false {
-                        DispatchQueue.main.async {
-                            for dto in dtos {
-                                let uiMsg = dto.toUIMessage(myId: myUserId)
-                                messages.append(uiMsg)
-                            }
-                            lastId = dtos.last?.chat_id ?? lastId
-                        }
-                    }
-                    
-                } catch {
-                    print("디코딩 오류:", error)
-                }
-                
-            }.resume()
+        stopFetchMessage()
+
+        fetchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            fetchMessages()
         }
     }
 
+    func stopFetchMessage() {
+        fetchTimer?.invalidate()
+        fetchTimer = nil
+    }
+
+    private func fetchMessages() {
+
+        guard let url = URL(string:
+            "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
+        ) else {
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                print("요청 에러:", error)
+                return
+            }
+
+            guard let data = data else { return }
+
+            do {
+                let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data)
+
+                guard dtos.isEmpty == false else { return }
+
+                DispatchQueue.main.async {
+                    for dto in dtos {
+                        messages.append(dto.toUIMessage(myId: myUserId))
+                    }
+                    lastId = dtos.last?.chat_id ?? lastId
+                }
+
+            } catch {
+                print("디코딩 오류:", error)
+            }
+        }.resume()
+    }
 }
+
 
 struct ChatInputView: View {
     @Binding var text: String
@@ -243,5 +250,5 @@ struct MessageRow: View {
 
 
 #Preview {
-    ChatSection()
+    ChatSection(myUserId: 1, keywordId: 2)
 }

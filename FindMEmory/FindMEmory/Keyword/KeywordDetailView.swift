@@ -112,7 +112,10 @@ struct KeywordDetailView: View {
         keyword: KeywordModel(
             id: 1,
             name: "상속자들",
-            created_at: "2025-11-17 10:00:00"
+            question_count: 12,
+            created_at: "2025-11-17 10:00:00",
+            participant_count: 5
         )
     )
 }
+
