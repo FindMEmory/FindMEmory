@@ -28,7 +28,7 @@ struct Question: Codable, Identifiable, Sendable {
     let question_id: Int
     let author_id: Int
     let body: String
-    let keyword_id: Int
+    let keyword_id: Int?
     let answer_count: Int
     let title: String
     let like_count: Int
