@@ -39,8 +39,16 @@ struct QuestionDetailView: View {
                     if questionAuthorId == userId {
                         Menu {
                             NavigationLink("수정") {
-                                QuestionEditView()
+                                QuestionEditView(
+                                    questionId: questionId,
+                                    title: questionTitle,
+                                    content: questionBody,
+                                    onUpdated: {
+                                        loadDetail()
+                                    }
+                                )
                             }
+
                             Button("삭제", role: .destructive) {
                                 deleteQuestion()
                             }
@@ -50,6 +58,7 @@ struct QuestionDetailView: View {
                                 .foregroundColor(.black)
                         }
                     }
+
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
@@ -228,5 +237,5 @@ struct QuestionDetailView: View {
 }
 
 #Preview {
-    QuestionDetailView(questionId: 9)
+    QuestionDetailView(questionId: 10)
 }
