@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SortItem {
     let label: String
-    let sortKey: String 
+    let sortKey: String
 }
 
 struct QuestionResponse: Codable {
@@ -25,6 +25,9 @@ struct MyQuestionResponse: Codable {
 }
 
 struct Question: Codable, Identifiable, Sendable {
+
+    var id: Int { question_id }
+
     let question_id: Int
     let author_id: Int
     let body: String
@@ -34,13 +37,12 @@ struct Question: Codable, Identifiable, Sendable {
     let like_count: Int
     let view_count: Int
     let is_solved: Int
+
     let created_at: String
     let updated_at: String?
 
-    // 🔥 Identifiable을 위한 id → question_id 사용
-    var id: Int { question_id }
 
-    // 🔥 JSON에서 디코딩할 키 지정 (id는 제외!)
+
     enum CodingKeys: String, CodingKey {
         case question_id, author_id, body, keyword_id,
              answer_count, title, like_count, view_count,
@@ -54,20 +56,27 @@ struct QuestionRowListGroup: View {
     @State private var questions: [Question] = []
     
     var body: some View {
-        NavigationStack{
-            VStack{
-                HStack{
+        NavigationStack {
+            VStack {
+                HStack {
                     Text(sortItem.label)
                     
                     Spacer()
+
+
                     NavigationLink("더보기") {
-                        QuestionListView(sortItem: sortItem)
+                        QuestionListView(
+                            sortItem: sortItem,
+                            keywordId: nil,
+                            keywordName: nil
+                        )
                     }
 
                 }
                 .padding(.horizontal)
+                
                 HStack {
-                    ForEach(questions.prefix(3), id: \.question_id) { q in
+                    ForEach(questions.prefix(3)) { q in
                         QuestionBoxItemView(
                             card: QuestionBoxItem(
                                 image: Image(systemName: "photo"),
@@ -77,8 +86,8 @@ struct QuestionRowListGroup: View {
                                 chattingCount: Int(q.answer_count)
                             )
                         )
+
                     }
-                    
                 }
             }
             .task {
@@ -88,10 +97,12 @@ struct QuestionRowListGroup: View {
     }
     
     func fetchQuestions() {
-        guard let url = URL(string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)") else { return }
+        guard let url = URL(
+            string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)"
+        ) else { return }
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
                 do {
                     let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
                     DispatchQueue.main.async {
@@ -106,8 +117,10 @@ struct QuestionRowListGroup: View {
 }
 
 #Preview {
-    QuestionRowListGroup(sortItem: SortItem(
-        label: "인기 질문",
-        sortKey: "like"
-    ))
+    QuestionRowListGroup(
+        sortItem: SortItem(
+            label: "인기 질문",
+            sortKey: "like"
+        )
+    )
 }

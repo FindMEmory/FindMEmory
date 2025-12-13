@@ -8,16 +8,26 @@
 import SwiftUI
 
 struct QuestionListView: View {
-    let sortItem: SortItem
+
+    let sortItem: SortItem?          // 메인 리스트용
+    let keywordId: Int?              // 키워드 리스트용
+    let keywordName: String?         // 키워드 리스트 타이틀
+
     @State private var isSolvedFilter: String = "all"
     @State private var questions: [Question] = []
+
+
     @Environment(\.dismiss) private var dismiss
-    
+
+
     var body: some View {
-        NavigationStack{
-            VStack{
+
+        NavigationStack {
+            VStack {
                 HeaderGroup
-                if sortItem.sortKey != "not_solved" {
+
+                if showFilter {
+
                     FilteringGroup
                 }
                 QuestionListGroup
@@ -29,69 +39,84 @@ struct QuestionListView: View {
             }
         }
     }
-    
+
+    // MARK: - Header
     private var HeaderGroup: some View {
-        ZStack{
-            HStack{
-                Button(action: { dismiss() }, label: {
+        ZStack {
+            HStack {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.backward")
                         .tint(.black)
-                })
+                }
                 Spacer()
             }
             .padding()
-            Text(sortItem.label)
+
+            Text(headerTitle)
+                .font(.headline)
+
         }
     }
-    
+
+    private var headerTitle: String {
+        if let keywordName {
+            return keywordName
+        } else if let sortItem {
+            return sortItem.label
+        } else {
+            return "질문 목록"
+        }
+    }
+
+    // MARK: - Filter
+    private var showFilter: Bool {
+        // 키워드 진입 시 필터 숨김
+        guard keywordId == nil else { return false }
+        return sortItem?.sortKey != "not_solved"
+    }
+
     private var FilteringGroup: some View {
-        HStack{
+        HStack {
             Spacer().frame(width: 40)
-            Button(action: {
-                if isSolvedFilter == "true" {
-                    isSolvedFilter = "all"   
-                } else {
-                    isSolvedFilter = "true"
-                }
+
+
+            Button {
+                isSolvedFilter = (isSolvedFilter == "true") ? "all" : "true"
                 fetchQuestions()
-            }, label: {
-                Text("해결")
-                    .foregroundStyle(.black)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(.gray, lineWidth: 1)
-                            .fill(isSolvedFilter == "true" ? .green : .white)
-                            .frame(width: 68)
-                    )
-            })
+            } label: {
+                filterButton(title: "해결", active: isSolvedFilter == "true")
+            }
+
             Spacer().frame(width: 50)
-            Button(action: {
-                if isSolvedFilter == "false" {
-                    isSolvedFilter = "all"
-                } else {
-                    isSolvedFilter = "false"
-                }
+
+            Button {
+                isSolvedFilter = (isSolvedFilter == "false") ? "all" : "false"
                 fetchQuestions()
-            }, label: {
-                Text("미해결")
-                    .foregroundStyle(.black)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(.gray, lineWidth: 1)                            .fill(isSolvedFilter == "false" ? .green : .white)
-                        
-                            .frame(width: 68)
-                    )
-            })
+            } label: {
+                filterButton(title: "미해결", active: isSolvedFilter == "false")
+            }
             Spacer()
         }
     }
-    
+
+    private func filterButton(title: String, active: Bool) -> some View {
+        Text(title)
+            .foregroundStyle(.black)
+            .padding(.vertical, 3)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(.gray, lineWidth: 1)
+                    .fill(active ? .green : .white)
+                    .frame(width: 68)
+            )
+    }
+
+    // MARK: - List
     private var QuestionListGroup: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(questions, id: \.question_id) { q in
+
+                ForEach(questions) { q in
                     QuestionCardView(
                         card: QuestionCard(
                             id: q.question_id,
@@ -109,12 +134,42 @@ struct QuestionListView: View {
             }
         }
     }
-    
-    func fetchQuestions() {
-        guard let url = URL(string: "Question?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)") else { return }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
+
+    // MARK: - Fetch
+    private func fetchQuestions() {
+        if let keywordId {
+            fetchQuestionsByKeyword(keywordId)
+        } else if let sortItem {
+            fetchQuestionsBySort(sortItem)
+        }
+    }
+
+    private func fetchQuestionsBySort(_ sortItem: SortItem) {
+        guard let url = URL(
+            string: "Question?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
+                do {
+                    let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.questions = decoded.data
+                    }
+                } catch {
+                    print("Decode 실패:", error)
+                }
+            }
+        }.resume()
+    }
+
+    private func fetchQuestionsByKeyword(_ keywordId: Int) {
+        guard let url = URL(
+            string: "questionByKeyword.php?keyword_id=\(keywordId)"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
                 do {
                     let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
                     DispatchQueue.main.async {
@@ -129,10 +184,12 @@ struct QuestionListView: View {
 }
 
 #Preview {
-    QuestionListView(sortItem: SortItem(
-        label: "인기 질문",
-        sortKey: "like"
-    ))
-    
+
+
+    QuestionListView(
+        sortItem: SortItem(label: "인기 질문", sortKey: "like"),
+        keywordId: nil,
+        keywordName: nil
+    )
 }
 

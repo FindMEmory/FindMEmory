@@ -7,7 +7,43 @@
 
 import SwiftUI
 
-struct Keyword {
-
+struct Keyword: View {
+    
+    var keywordName: String
+    var questionCount: Int
+    var participantCount: Int
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            
+            Text(keywordName)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.black)
+            
+            Group {
+                Text("게시글 \(questionCount)")
+                Text("현재 \(participantCount)명 참여중")
+            }
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
+            
+            Spacer().frame(height: 10)
+            
+            Image(systemName: "photo")
+                .resizable()
+                .frame(width: 120, height: 120)
+                .foregroundColor(.black)
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(.gray, style: StrokeStyle(lineWidth: 1))
+        )
+    }
 }
 
+#Preview {
+    Keyword(keywordName: "상속자들",
+            questionCount: 0,
+            participantCount: 0)
+}

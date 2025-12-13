@@ -12,6 +12,7 @@ struct MyPageView: View {
     @AppStorage("is_logged_in") private var isLoggedIn: Bool = true
 
     var body: some View {
+
         NavigationStack {
             VStack(spacing: 30) {
 
@@ -53,6 +54,7 @@ struct MyPageView: View {
                                 .stroke(.gray, lineWidth: 1)
                         )
                 }
+
                 .padding(.horizontal)
             }
         }
@@ -75,6 +77,7 @@ struct MyPageView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
+
                 .stroke(.gray, lineWidth: 1)
         )
         .padding(.horizontal)
@@ -85,6 +88,7 @@ struct MyPageView: View {
             Text("나의 등급")
 
             VStack(alignment: .leading) {
+
                 Text("다음 등급까지 채택 4개")
                     .foregroundStyle(.gray)
                 Image(.grade)
@@ -135,6 +139,7 @@ struct MyPageView: View {
         userId = 0
         isLoggedIn = false
         print("isLoggedIn:", isLoggedIn)
+
     }
 }
 
