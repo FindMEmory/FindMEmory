@@ -74,7 +74,7 @@ struct QuestionRowByKeywordGroup: View {
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
         let urlString =
-        "http://127.0.0.1/findmemory/questionByKeyword.php?keyword_id=\(keywordId)&search=\(encoded)"
+        "http://124.56.5.77/IUI/questionByKeyword.php?keyword_id=\(keywordId)&search=\(encoded)"
 
         guard let url = URL(string: urlString) else { return }
 

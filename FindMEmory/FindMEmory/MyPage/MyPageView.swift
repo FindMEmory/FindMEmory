@@ -144,7 +144,7 @@ struct MyPageView: View {
     
     private func fetchUserInfo() {
         guard let url = URL(
-            string: "http://localhost/findmemory/get_user.php?user_id=\(userId)"
+            string: "http://124.56.5.77/IUI/get_user.php?user_id=\(userId)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in

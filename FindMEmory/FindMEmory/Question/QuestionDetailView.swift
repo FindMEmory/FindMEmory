@@ -115,7 +115,7 @@ struct QuestionDetailView: View {
     // ----------------------------------------------------
 
     func loadDetail() {
-        guard let url = URL(string: "http://localhost/findmemory/get_detail.php?id=\(questionId)") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/get_detail.php?id=\(questionId)") else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
             guard let data = data else { return }
@@ -172,7 +172,7 @@ struct QuestionDetailView: View {
 
     // 좋아요
     func likeQuestion() {
-        guard let url = URL(string: "http://localhost/findmemory/like_question.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/like_question.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -190,7 +190,7 @@ struct QuestionDetailView: View {
 
     // 댓글 등록
     func addCommentToServer() {
-        guard let url = URL(string: "http://localhost/findmemory/add_answer.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/add_answer.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -213,7 +213,7 @@ struct QuestionDetailView: View {
     func acceptComment(_ id: Int) {
         print("채택 요청 answer_id =", id)
 
-        guard let url = URL(string: "http://localhost/findmemory/accept_answer.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/accept_answer.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -231,7 +231,7 @@ struct QuestionDetailView: View {
 
     // 댓글 삭제
     func deleteComment(_ id: Int) {
-        guard let url = URL(string: "http://localhost/findmemory/delete_answer.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/delete_answer.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -247,7 +247,7 @@ struct QuestionDetailView: View {
 
     // 질문 삭제
     func deleteQuestion() {
-        guard let url = URL(string: "http://localhost/findmemory/delete_question.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/delete_question.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

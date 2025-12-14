@@ -86,7 +86,7 @@ struct EditUserPageView: View {
 
     private func fetchUserInfo() {
         guard let url = URL(
-            string: "http://localhost/findmemory/get_user.php?user_id=\(loginUserId)"
+            string: "http://124.56.5.77/IUI/get_user.php?user_id=\(loginUserId)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
@@ -109,7 +109,7 @@ struct EditUserPageView: View {
             return
         }
 
-        guard let url = URL(string: "http://localhost/findmemory/update_user.php") else { return }
+        guard let url = URL(string: "http://124.56.5.77/IUI/update_user.php") else { return }
 
         var body = "user_id=\(loginUserId)&login_id=\(loginId)&nickname=\(nickname)"
         if !password.isEmpty {

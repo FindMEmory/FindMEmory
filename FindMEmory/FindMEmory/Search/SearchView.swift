@@ -112,7 +112,7 @@ struct SearchView: View {
     
     func fetchKeywords(sort: String) {
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/get_keyword.php?sort=\(sort)"
+            string: "http://124.56.5.77/IUI/get_keyword.php?sort=\(sort)"
         ) else {
             print("URL Error")
             return
@@ -149,7 +149,7 @@ struct SearchView: View {
     
     private func fetchQuestions() {
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionList.php?sort=like"
+            string: "http://124.56.5.77/IUI/questionList.php?sort=like"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in

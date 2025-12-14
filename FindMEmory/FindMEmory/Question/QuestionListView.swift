@@ -194,7 +194,7 @@ struct QuestionListView: View {
 
     private func fetchQuestionsBySort(_ sortItem: SortItem) {
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)"
+            string: "http://124.56.5.77/IUI/questionList.php?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
@@ -213,7 +213,7 @@ struct QuestionListView: View {
 
     private func fetchQuestionsByKeyword(_ keywordId: Int) {
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionByKeyword.php?keyword_id=\(keywordId)"
+            string: "http://124.56.5.77/IUI/questionByKeyword.php?keyword_id=\(keywordId)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
@@ -234,7 +234,7 @@ struct QuestionListView: View {
         let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionSearch.php?keyword=\(encoded)&sort=\(selectedSort.rawValue)&isSolved=\(isSolvedFilter)"
+            string: "http://124.56.5.77/IUI/questionSearch.php?keyword=\(encoded)&sort=\(selectedSort.rawValue)&isSolved=\(isSolvedFilter)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in

@@ -127,7 +127,7 @@ struct KeywordPickerSheet: View {
 
         let encoded = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" // 검색어 URL 인코딩 -> 깨짐 방지
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/search_keyword.php?query=\(encoded)"
+            string: "http://124.56.5.77/IUI/search_keyword.php?query=\(encoded)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in

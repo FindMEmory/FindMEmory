@@ -131,7 +131,7 @@ struct CreateKeywordView: View {
     // 키워드 카드 등록 함수
     func registerKeyword() {
         
-        guard let url = URL(string: "http://127.0.0.1/findmemory/add_keyword.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/add_keyword.php") else {
             print("URL ERROR")
             return
         }

@@ -103,7 +103,7 @@ struct ChatSection: View {
 
         guard !newMessage.isEmpty else { return } // 빈 메시지 전송 방지
 
-        guard let url = URL(string: "http://localhost/findmemory/sendMessage.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/sendMessage.php") else {
             return
         }
 
@@ -140,7 +140,7 @@ struct ChatSection: View {
     private func fetchMessages() {
 
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
+            string: "http://124.56.5.77/IUI/fetchMessage.php?keyword_id=\(keywordId)&last_id=\(lastId)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, error in

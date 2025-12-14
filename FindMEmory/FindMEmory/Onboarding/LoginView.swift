@@ -86,7 +86,7 @@ struct LoginView: View {
         guard !loginId.isEmpty else { msg = "아이디를 입력하세요."; showAlert = true; return }
         guard !loginPwd.isEmpty else { msg = "비밀번호를 입력하세요."; showAlert = true; return }
         
-        guard let url = URL(string: "http://localhost/findmemory/login.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/login.php") else {
             msg = "URL 오류"; showAlert = true; return
         }
         

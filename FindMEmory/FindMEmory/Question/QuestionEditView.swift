@@ -232,7 +232,7 @@ struct QuestionEditView: View {
     // MARK: - API
 
     private func updateQuestion() {
-        guard let url = URL(string: "http://localhost/findmemory/update_question.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/update_question.php") else {
             msg = "URL 오류"
             showAlert = true
             return

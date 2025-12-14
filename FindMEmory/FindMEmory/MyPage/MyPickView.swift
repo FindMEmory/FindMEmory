@@ -21,7 +21,7 @@ struct MyPickView: View {
         }
         .navigationBarBackButtonHidden(true)
         .task {
-            print("📌 현재 userId =", userId)
+            print("현재 userId =", userId)
             fetchLikedQuestions()
         }
     }
@@ -65,7 +65,7 @@ struct MyPickView: View {
         guard userId != 0 else { return }
 
         let url = URL(string:
-            "http://127.0.0.1/findmemory/acceptedQuestionList.php?user_id=\(userId)"
+            "http://124.56.5.77/IUI/acceptedQuestionList.php?user_id=\(userId)"
         )!
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
@@ -79,7 +79,7 @@ struct MyPickView: View {
                     self.questions = decoded.data
                 }
             } catch {
-                print("❌ Decode 실패:", error)
+                print("Decode 실패:", error)
             }
         }.resume()
     }

@@ -92,7 +92,7 @@ struct SignupView: View {
         guard !loginPwd.isEmpty else { msg = "비밀번호를 입력하세요."; showAlert = true; return }
         guard loginPwd == confirmPwd else { msg = "비밀번호가 일치하지 않습니다."; showAlert = true; return }
         
-        guard let url = URL(string: "http://localhost/findmemory/signup.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/signup.php") else {
             msg = "URL 오류"; showAlert = true; return
         }
         

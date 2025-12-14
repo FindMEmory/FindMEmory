@@ -104,7 +104,7 @@ struct QuestionRowListGroup: View {
     
     func fetchQuestions() {
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)"
+            string: "http://124.56.5.77/IUI/questionList.php?sort=\(sortItem.sortKey)"
         ) else { return }
         
         URLSession.shared.dataTask(with: url) { data, _, _ in

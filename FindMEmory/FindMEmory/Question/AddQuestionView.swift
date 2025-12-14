@@ -219,7 +219,7 @@ struct AddQuestionView: View {
             return
         }
 
-        guard let url = URL(string: "http://localhost/findmemory/add_question.php") else {
+        guard let url = URL(string: "http://124.56.5.77/IUI/add_question.php") else {
             msg = "URL 오류"
             showAlert = true
             return

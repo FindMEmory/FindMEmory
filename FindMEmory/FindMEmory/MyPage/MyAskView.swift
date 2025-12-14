@@ -64,7 +64,7 @@ struct MyAskView: View {
     func fetchLikedQuestions() {
         guard userId != 0 else { return }
         
-        guard let url = URL(string:  "http://127.0.0.1/findmemory/myQuestionList.php?user_id=\(userId)") else {
+        guard let url = URL(string:  "http://124.56.5.77/IUI/myQuestionList.php?user_id=\(userId)") else {
             return
         }
         

@@ -65,7 +65,7 @@ struct KeywordView: View {
     func fetchKeywords(sort: String) { // 정렬 기준 전달
 
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/get_keyword.php?sort=\(sort)"
+            string: "http://124.56.5.77/IUI/get_keyword.php?sort=\(sort)"
         ) else {
             print("URL Error")
             return
