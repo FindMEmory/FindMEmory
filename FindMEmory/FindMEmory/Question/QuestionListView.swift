@@ -16,11 +16,24 @@ struct QuestionListView: View {
 
     @State private var isSolvedFilter: String = "all"
     @State private var questions: [Question] = []
-
+    @State private var selectedSort: QuestionSortType = .date
 
     @Environment(\.dismiss) private var dismiss
 
+    enum QuestionSortType: String, CaseIterable, Identifiable {
+        case date = "date"
+        case like = "like"
 
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .date: return "최신순"
+            case .like: return "인기순"
+            }
+        }
+    }
+    
     var body: some View {
 
         NavigationStack {
@@ -28,7 +41,6 @@ struct QuestionListView: View {
                 HeaderGroup
 
                 if showFilter {
-
                     FilteringGroup
                 }
                 QuestionListGroup
@@ -80,7 +92,6 @@ struct QuestionListView: View {
         HStack {
             Spacer().frame(width: 40)
 
-
             Button {
                 isSolvedFilter = (isSolvedFilter == "true") ? "all" : "true"
                 fetchQuestions()
@@ -97,6 +108,40 @@ struct QuestionListView: View {
                 filterButton(title: "미해결", active: isSolvedFilter == "false")
             }
             Spacer()
+            
+            if searchKeyword != nil {
+                Menu {
+                    ForEach(QuestionSortType.allCases) { type in
+                        Button {
+                            selectedSort = type
+                            fetchQuestions()
+                        } label: {
+                            if selectedSort == type {
+                                Label(type.label, systemImage: "checkmark")
+                                    .foregroundStyle(.black)
+                            } else {
+                                Text(type.label)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(selectedSort.label)
+                            .font(.subheadline)
+                            .foregroundStyle(.black)
+                        Image(systemName: "chevron.down")
+                            .foregroundStyle(.black)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(.gray, lineWidth: 1)
+                    )
+                }
+                
+                Spacer().frame(width: 20)
+            }
         }
     }
 
@@ -189,7 +234,7 @@ struct QuestionListView: View {
         let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         
         guard let url = URL(
-            string: "http://127.0.0.1/findmemory/questionSearch.php?keyword=\(encoded)"
+            string: "http://127.0.0.1/findmemory/questionSearch.php?keyword=\(encoded)&sort=\(selectedSort.rawValue)&isSolved=\(isSolvedFilter)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
