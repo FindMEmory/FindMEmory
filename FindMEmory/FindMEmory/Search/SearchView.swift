@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchView: View {
     
     @State private var searchContent: String = ""
+    @State private var popularKeywordList: [KeywordModel] = []
     
     var body: some View {
         NavigationStack{
@@ -22,7 +23,7 @@ struct SearchView: View {
                 )
                 .padding(.horizontal, 10)
             KeywordCardGroup
-QuestionGroup
+            QuestionGroup
         }
     }
     
@@ -42,13 +43,22 @@ QuestionGroup
     private var KeywordCardGroup: some View {
         VStack(alignment: .leading){
             Text("인기 키워드 카드")
-            ScrollView{
-                HStack{
-                    
+                .padding()
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(popularKeywordList) { item in
+                        NavigationLink(
+                            destination: KeywordDetailView(keyword: item)
+                        ) {
+                            Keyword(
+                                keywordName: item.name,
+                                questionCount: item.question_count,
+                                participantCount: item.participant_count
+                            )
+                        }
+                    }
                 }
-
-            }
-        }
+            }        }
     }
     
     private var QuestionGroup: some View {
@@ -56,6 +66,44 @@ QuestionGroup
             Text("게시글")
             
         }
+    }
+    
+    func fetchKeywords(sort: String) {
+        guard let url = URL(
+            string: "http://127.0.0.1/findmemory/get_keyword.php?sort=\(sort)"
+        ) else {
+            print("URL Error")
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+
+            if let error = error {
+                print("요청 에러:", error)
+                return
+            }
+
+            guard let data = data else {
+                print("데이터 없음")
+                return
+            }
+
+            do {
+                let response = try JSONDecoder()
+                    .decode(KeywordListResponse.self, from: data)
+
+                DispatchQueue.main.async {
+                    if response.success {
+                        if sort == "popular" {
+                            self.popularKeywordList = response.keywords
+                        } 
+                    }
+                }
+            } catch {
+                print("디코딩 오류:", error)
+            }
+
+        }.resume()
     }
 }
 
