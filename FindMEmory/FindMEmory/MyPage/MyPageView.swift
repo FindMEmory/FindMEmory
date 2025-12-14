@@ -14,7 +14,7 @@ struct MyPageView: View {
     @State private var id: String = ""
 
     var body: some View {
-        NavigationStack {
+
             VStack(spacing: 30) {
 
                 // ---------- 상단 ----------
@@ -57,7 +57,7 @@ struct MyPageView: View {
                 }
                 .padding(.horizontal)
             }
-        }
+        
     .task{fetchUserInfo()}
     }
 
