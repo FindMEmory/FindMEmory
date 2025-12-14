@@ -69,13 +69,6 @@ struct EditUserPageView: View {
             .padding(.horizontal, 24)
             .navigationTitle("계정 정보")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button { dismiss() } label: {
-                        Image(systemName: "chevron.left")
-                    }
-                }
-            }
             .onAppear {
                 fetchUserInfo()
             }
