@@ -25,6 +25,9 @@ struct SearchView: View {
             KeywordCardGroup
             QuestionGroup
         }
+        .task {
+            fetchKeywords(sort: "popular")
+        }
     }
     
     private var HeaderGroup: some View {
@@ -43,7 +46,6 @@ struct SearchView: View {
     private var KeywordCardGroup: some View {
         VStack(alignment: .leading){
             Text("인기 키워드 카드")
-                .padding()
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
                     ForEach(popularKeywordList) { item in
@@ -58,7 +60,9 @@ struct SearchView: View {
                         }
                     }
                 }
-            }        }
+            }
+        }
+        .padding()
     }
     
     private var QuestionGroup: some View {
@@ -77,7 +81,6 @@ struct SearchView: View {
         }
 
         URLSession.shared.dataTask(with: url) { data, _, error in
-
             if let error = error {
                 print("요청 에러:", error)
                 return
@@ -91,13 +94,13 @@ struct SearchView: View {
             do {
                 let response = try JSONDecoder()
                     .decode(KeywordListResponse.self, from: data)
-
                 DispatchQueue.main.async {
                     if response.success {
                         if sort == "popular" {
                             self.popularKeywordList = response.keywords
-                        } 
+                        }
                     }
+                    print(popularKeywordList)
                 }
             } catch {
                 print("디코딩 오류:", error)
