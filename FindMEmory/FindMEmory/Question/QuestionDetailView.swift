@@ -44,8 +44,8 @@ struct QuestionDetailView: View {
                                     title: questionTitle,
                                     content: questionBody,
                                     onUpdated: {
-                                        loadDetail()
-                                    }
+                                                loadDetail()
+                                            }
                                 )
                             }
 
@@ -188,20 +188,23 @@ struct QuestionDetailView: View {
 
     // 댓글 채택
     func acceptComment(_ id: Int) {
+        print("채택 요청 answer_id =", id)
+
         guard let url = URL(string: "http://localhost/findmemory/accept_answer.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = "answer_id=\(id)&question_id=\(questionId)".data(using: .utf8)
+        request.httpBody = "answer_id=\(id)&question_id=\(questionId)"
+            .data(using: .utf8)
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
         URLSession.shared.dataTask(with: request) { _, _, _ in
             DispatchQueue.main.async {
-                acceptedCommentId = id
                 loadDetail()
             }
         }.resume()
     }
+
 
     // 댓글 삭제
     func deleteComment(_ id: Int) {
@@ -237,5 +240,5 @@ struct QuestionDetailView: View {
 }
 
 #Preview {
-    QuestionDetailView(questionId: 10)
+    QuestionDetailView(questionId: 1)
 }
