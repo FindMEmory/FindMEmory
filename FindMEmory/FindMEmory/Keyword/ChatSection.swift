@@ -22,10 +22,11 @@ struct ChatMessageDTO: Codable, Identifiable {
 extension ChatMessageDTO {
     func toUIMessage(myId: Int) -> Message {
         Message(
-            user: self.user_name,
-            text: self.body,
-            time: convertDate(self.created_at),
-            isMe: self.sender_id == myId,
+            id: chat_id,
+            user: user_name,
+            text: body,
+            time: convertDate(created_at),
+            isMe: sender_id == myId,
             profileImage: "person.circle.fill"
         )
     }
@@ -40,7 +41,7 @@ extension ChatMessageDTO {
 
 // MARK: - UI Model
 struct Message: Identifiable {
-    let id: UUID = UUID()
+    let id: Int
     let user: String
     let text: String
     let time: Date
@@ -123,17 +124,6 @@ struct ChatSection: View {
         request.httpBody = bodyString.data(using: .utf8)
 
         URLSession.shared.dataTask(with: request).resume()
-
-        // 낙관적 업데이트
-        messages.append(
-            Message(
-                user: "나",
-                text: newMessage,
-                time: Date(),
-                isMe: true,
-                profileImage: "person.circle.fill"
-            )
-        )
 
         newMessage = ""
     }

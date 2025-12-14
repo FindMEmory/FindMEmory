@@ -165,7 +165,7 @@ struct QuestionListView: View {
 
     private func fetchQuestionsByKeyword(_ keywordId: Int) {
         guard let url = URL(
-            string: "questionByKeyword.php?keyword_id=\(keywordId)"
+            string: "http://127.0.0.1/findmemory/questionByKeyword.php?keyword_id=\(keywordId)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in

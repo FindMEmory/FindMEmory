@@ -28,6 +28,7 @@ struct QuestionItemLink: View {
 struct QuestionRowByKeywordGroup: View {
     let keywordId: Int
     let keywordName: String
+    let searchText: String
     
     @State private var questions: [Question] = []
     
@@ -60,27 +61,33 @@ struct QuestionRowByKeywordGroup: View {
                 }
             }
         }
-        .task {
+        .task(id: searchText) {
             fetchQuestionsByKeyword()
         }
+
     }
     
     func fetchQuestionsByKeyword() {
-        guard let url = URL(string:
-            "http://127.0.0.1/findmemory/questionByKeyword.php?keyword_id=\(keywordId)"
-        ) else { return }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
+        let encoded = searchText
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        let urlString =
+        "http://127.0.0.1/findmemory/questionByKeyword.php?keyword_id=\(keywordId)&search=\(encoded)"
+
+        guard let url = URL(string: urlString) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
                 do {
                     let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
                     DispatchQueue.main.async {
                         self.questions = decoded.data
                     }
                 } catch {
-                    print("❌ JSON Decode 실패:", error)
+                    print("JSON Decode 실패:", error)
                 }
             }
         }.resume()
     }
+
 }

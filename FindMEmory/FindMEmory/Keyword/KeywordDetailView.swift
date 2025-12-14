@@ -32,8 +32,8 @@ struct KeywordDetailView: View {
 
     let keyword: KeywordModel
 
-    @State private var searchKeyword: String = ""
     @StateObject private var keyboard = KeyboardResponder()
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack {
@@ -42,10 +42,10 @@ struct KeywordDetailView: View {
                     .padding(20)
 
                 searchBar
-                    .padding(10)
+                    .padding(.horizontal, 10)
 
                 questionList
-                    .padding(10)
+                    .padding(.top, 10)
 
                 liveChat
             }
@@ -77,7 +77,7 @@ struct KeywordDetailView: View {
 
     // MARK: - Search
     private var searchBar: some View {
-        TextField("검색", text: $searchKeyword)
+        TextField("검색", text: $searchText)
             .padding(10)
             .background(
                 RoundedRectangle(cornerRadius: 15)
@@ -85,11 +85,12 @@ struct KeywordDetailView: View {
             )
     }
 
-    // MARK: - Question List
+    // MARK: - Question List (검색 연동 핵심)
     private var questionList: some View {
         QuestionRowByKeywordGroup(
             keywordId: keyword.id,
-            keywordName: keyword.name
+            keywordName: keyword.name,
+            searchText: searchText
         )
     }
 
@@ -100,13 +101,11 @@ struct KeywordDetailView: View {
                 .font(.headline)
 
             ChatSection(keywordId: keyword.id)
-                .background(
-                    Rectangle()
-                        .foregroundStyle(.gray.opacity(0.1))
-                )
+                .background(Color.gray.opacity(0.1))
         }
     }
 }
+
 
 #Preview {
     KeywordDetailView(
