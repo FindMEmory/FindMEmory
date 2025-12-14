@@ -10,6 +10,8 @@ import SwiftUI
 struct QuestionDetailView: View {
     @AppStorage("user_id") var userId: Int = 0
     let questionId: Int
+    
+    @State private var currentKeyword: KeywordModel? = nil
 
     // 게시글 정보
     @State private var questionTitle = ""
@@ -43,11 +45,13 @@ struct QuestionDetailView: View {
                                     questionId: questionId,
                                     title: questionTitle,
                                     content: questionBody,
+                                    selectedKeyword: currentKeyword,
                                     onUpdated: {
-                                                loadDetail()
-                                            }
+                                        loadDetail()
+                                    }
                                 )
                             }
+
 
                             Button("삭제", role: .destructive) {
                                 deleteQuestion()
@@ -129,6 +133,20 @@ struct QuestionDetailView: View {
                         likeCount = q["like_count"] as? Int ?? 0
                         acceptedCommentId = q["accepted_comment_id"] as? Int
                         isLiked = q["is_liked"] as? Bool ?? false
+                        
+                        if let kid = q["keyword_id"] as? Int,
+                           let name = q["keyword_name"] as? String {
+
+                            currentKeyword = KeywordModel(
+                                id: kid,
+                                name: name,
+                                question_count: 0,
+                                created_at: "",
+                                participant_count: 0
+                            )
+                        } else {
+                            currentKeyword = nil
+                        }
                     }
                 }
 
@@ -146,6 +164,8 @@ struct QuestionDetailView: View {
                         }
                     }
                 }
+                
+                
             }
         }.resume()
     }

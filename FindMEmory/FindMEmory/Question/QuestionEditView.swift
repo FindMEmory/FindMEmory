@@ -244,8 +244,8 @@ struct QuestionEditView: View {
             "body": content
         ]
 
-        if let keywordId = selectedKeyword?.id {
-            params["keyword_id"] = "\(keywordId)"
+        if let keyword = selectedKeyword {
+            params["keyword_id"] = "\(keyword.id)"
         }
 
         let encoded = params
