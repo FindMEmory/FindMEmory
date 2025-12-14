@@ -73,7 +73,8 @@ struct QuestionRowListGroup: View {
                         QuestionListView(
                             sortItem: sortItem,
                             keywordId: nil,
-                            keywordName: nil
+                            keywordName: nil,
+                            searchKeyword: nil
                         )
                     }
 
