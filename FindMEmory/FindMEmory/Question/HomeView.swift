@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct HomeView: View {
+    @AppStorage("user_id") private var loginUserId: Int = 0
+    @State private var nickname: String = ""
+    
     var body: some View {
         NavigationStack{
             ScrollView{
@@ -30,6 +33,7 @@ struct HomeView: View {
                     sortKey: "not_solved"
                 ))
             }}
+        .task{fetchUserInfo()}
     }
     
     private var HeaderGroup: some View {
@@ -50,7 +54,10 @@ struct HomeView: View {
     
     private var GoWriteGroup: some View {
         VStack(alignment: .leading){
-            Text("홍길동님,")
+            HStack(spacing: 0) {
+                  Text(nickname)
+                  Text("님,")
+              }
                 .font(.headline)
                 .bold()
             Text("오늘은 어떤 기억을 떠올렸나요?")
@@ -65,7 +72,25 @@ struct HomeView: View {
                         .foregroundStyle(.gray)
                 )
         }
-        .padding()
+        .padding(.horizontal, 10)
+        .padding(.vertical)
+    }
+    
+    private func fetchUserInfo() {
+        guard let url = URL(
+            string: "http://localhost/findmemory/get_user.php?user_id=\(loginUserId)"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data else { return }
+
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               json["success"] as? Bool == true {
+                DispatchQueue.main.async {
+                    nickname = json["nickname"] as? String ?? ""
+                }
+            }
+        }.resume()
     }
 }
 

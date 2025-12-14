@@ -85,6 +85,7 @@ struct QuestionRowListGroup: View {
                     ForEach(questions.prefix(3)) { q in
                         QuestionBoxItemView(
                             card: QuestionBoxItem(
+                                id: q.question_id,
                                 image: Image(systemName: "photo"),
                                 solving: q.is_solved == 1,
                                 title: q.title,
@@ -92,7 +93,6 @@ struct QuestionRowListGroup: View {
                                 chattingCount: Int(q.answer_count)
                             )
                         )
-
                     }
                 }
             }

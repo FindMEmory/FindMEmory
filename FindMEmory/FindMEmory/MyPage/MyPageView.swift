@@ -10,9 +10,10 @@ import SwiftUI
 struct MyPageView: View {
     @AppStorage("user_id") private var userId: Int = 0
     @AppStorage("is_logged_in") private var isLoggedIn: Bool = true
+    @State private var nickname: String = ""
+    @State private var id: String = ""
 
     var body: some View {
-
         NavigationStack {
             VStack(spacing: 30) {
 
@@ -54,10 +55,10 @@ struct MyPageView: View {
                                 .stroke(.gray, lineWidth: 1)
                         )
                 }
-
                 .padding(.horizontal)
             }
         }
+    .task{fetchUserInfo()}
     }
 
     // MARK: - UI Components
@@ -67,8 +68,8 @@ struct MyPageView: View {
             Image(.profile)
 
             VStack(alignment: .leading) {
-                Text("닉네임")
-                Text("dafj")
+                Text(nickname)
+                Text(id)
             }
             .foregroundStyle(.gray)
 
@@ -77,7 +78,6 @@ struct MyPageView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 10)
-
                 .stroke(.gray, lineWidth: 1)
         )
         .padding(.horizontal)
@@ -141,6 +141,25 @@ struct MyPageView: View {
         print("isLoggedIn:", isLoggedIn)
 
     }
+    
+    private func fetchUserInfo() {
+        guard let url = URL(
+            string: "http://localhost/findmemory/get_user.php?user_id=\(userId)"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data else { return }
+
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               json["success"] as? Bool == true {
+                DispatchQueue.main.async {
+                    nickname = json["nickname"] as? String ?? ""
+                    id = json["login_id"] as? String ?? ""
+                }
+            }
+        }.resume()
+    }
+
 }
 
 #Preview {
