@@ -39,13 +39,21 @@ struct QuestionBoxItemView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.fill")
                         .foregroundStyle(.pink)
+
                     Text("\(card.heartCount)")
                         .foregroundStyle(.black)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+
                     Image(systemName: "ellipsis.message.fill")
                         .foregroundStyle(.blue)
+
                     Text("\(card.chattingCount)")
                         .foregroundStyle(.black)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
+                .frame(width: 100)
             }
         }
         .padding()
