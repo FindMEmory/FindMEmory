@@ -33,6 +33,10 @@ struct NotificationView: View {
     private var NotificationList: some View {
         VStack{
             NotificationItem(notification: Notification(type: "adopted", title: "이 캐릭터 나온 만화", date: "1분 전"))
+            
+            NotificationItem(notification: Notification(type: "heart", title: "이 캐릭터 나온 만화", date: "10분 전"))
+            
+            NotificationItem(notification: Notification(type: "chat", title: "이 캐릭터 나온 만화", date: "1일 전"))
         }
     }
 }

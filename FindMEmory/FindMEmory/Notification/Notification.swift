@@ -30,6 +30,19 @@ struct NotificationItem: View {
         }
     }
     
+    private var iconColor: Color {
+        switch notification.type {
+        case "chat":
+            return .blue
+        case "heart":
+            return .red
+        case "adopted":
+            return .green
+        default:
+            return .black
+        }
+    }
+    
     private var message: String {
         switch notification.type {
         case "chat":
@@ -49,6 +62,7 @@ struct NotificationItem: View {
                 .resizable()
                 .frame(width: 34, height: 34)
                 .padding(.trailing, 10)
+                .foregroundStyle(iconColor)
             VStack(alignment: .leading){
                 Text(notification.title)
                 Text(message)
