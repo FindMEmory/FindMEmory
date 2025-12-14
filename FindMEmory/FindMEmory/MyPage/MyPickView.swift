@@ -63,24 +63,27 @@ struct MyPickView: View {
     
     func fetchLikedQuestions() {
         guard userId != 0 else { return }
-        
-        guard let url = URL(string:  "http://127.0.0.1/findmemory/acceptedQuestionList.php?user_id=\(userId)") else {
-            return
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
-                do {
-                    let decoded = try JSONDecoder().decode(MyQuestionResponse.self, from: data)
-                    DispatchQueue.main.async {
-                        self.questions = decoded.data
-                    }
-                } catch {
-                    print("Decode 실패:", error)
+
+        let url = URL(string:
+            "http://127.0.0.1/findmemory/acceptedQuestionList.php?user_id=\(userId)"
+        )!
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data = data else { return }
+
+            do {
+                let decoded = try JSONDecoder()
+                    .decode(AcceptedQuestionResponse.self, from: data)
+
+                DispatchQueue.main.async {
+                    self.questions = decoded.data
                 }
+            } catch {
+                print("❌ Decode 실패:", error)
             }
         }.resume()
     }
+
 }
 
 #Preview {
