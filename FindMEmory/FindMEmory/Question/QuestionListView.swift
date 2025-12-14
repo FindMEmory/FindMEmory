@@ -146,7 +146,7 @@ struct QuestionListView: View {
 
     private func fetchQuestionsBySort(_ sortItem: SortItem) {
         guard let url = URL(
-            string: "Question?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)"
+            string: "http://127.0.0.1/findmemory/questionList.php?sort=\(sortItem.sortKey)&isSolved=\(isSolvedFilter)"
         ) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
