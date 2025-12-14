@@ -74,7 +74,7 @@ struct SearchView: View {
             Text("게시글")
                 .padding(.horizontal)
             VStack(spacing: 0) {
-                ForEach(questions) { q in
+                ForEach(questions.prefix(5)) { q in
                     QuestionCardView(
                         card: QuestionCard(
                             id: q.question_id,
