@@ -8,20 +8,19 @@
 import SwiftUI
 
 struct KeywordPickerSheet: View {
-    @Binding var selectedKeyword: KeywordModel?
-    let onComplete: (KeywordModel) -> Void
+    @Binding var selectedKeyword: KeywordModel? // 상위 뷰(AddQuestionView)와 선택된 키워드 공유하기 위한 바인딩 값
+    let onComplete: (KeywordModel) -> Void // 키워드 선택 완료 시 콜백 함수
 
-    @State private var query: String = ""
-    @State private var keywords: [KeywordModel] = []
-    @State private var selected: KeywordModel? = nil
+    @State private var query: String = "" //키워드 검색어
+    @State private var keywords: [KeywordModel] = [] // 조회된 키워드 카드 목록
+    @State private var selected: KeywordModel? = nil // 선택된 키워드 카드
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss // 시트를 닫기 위한 변수
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
 
-                // ── 상단 영역
                 VStack(alignment: .leading, spacing: 20) {
 
                     HStack(spacing: 8) {
@@ -53,7 +52,6 @@ struct KeywordPickerSheet: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
-                // ── 검색 결과 리스트
                 VStack(spacing: 0) {
                     ForEach(keywords) { keyword in
                         HStack {
@@ -64,20 +62,20 @@ struct KeywordPickerSheet: View {
 
                             Spacer()
 
-                            Text("\(keyword.question_count)개의 질문")
+                            Text("\(keyword.question_count)개의 질문") // 해당 키워드 질문 수 표시
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 14)
-                        .background(
+                        .background( // 선택됐을 때 배경 색상 적용
                             selected?.id == keyword.id
                             ? Color.gray.opacity(0.15)
                             : Color.clear
                         )
-                        .contentShape(Rectangle())
+                        .contentShape(Rectangle()) // 빈 영역도 터치 가능
                         .onTapGesture {
-                            selected = keyword
+                            selected = keyword // 키워드 카드 선택 처리
                         }
                     }
                 }
@@ -87,7 +85,7 @@ struct KeywordPickerSheet: View {
                     Spacer()
                     NavigationLink {
                         CreateKeywordView { newKeyword in
-                            selected = newKeyword
+                            selected = newKeyword // 새로운 키워드 선택 상태로 설정
                         }
                     } label: {
                         Text("+ 새로운 키워드 카드 만들기")
@@ -100,7 +98,7 @@ struct KeywordPickerSheet: View {
                 
                 Spacer()
 
-                if let selected {
+                if let selected { // 키워드 카드 선택된 경우에만 확인 버튼 표시
                     Button {
                         selectedKeyword = selected
                         onComplete(selected)
@@ -120,15 +118,14 @@ struct KeywordPickerSheet: View {
         }
     }
 
-    // ── 검색 API
     private func searchKeywords() {
-        let trimmed = query.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else {
+        let trimmed = query.trimmingCharacters(in: .whitespaces) // 검색어 앞뒤 공백 제거
+        guard !trimmed.isEmpty else { // 검색어 비어있으면 초기화
             keywords = []
             return
         }
 
-        let encoded = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encoded = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" // 검색어 URL 인코딩 -> 깨짐 방지
         guard let url = URL(
             string: "http://127.0.0.1/findmemory/search_keyword.php?query=\(encoded)"
         ) else { return }
@@ -136,7 +133,7 @@ struct KeywordPickerSheet: View {
         URLSession.shared.dataTask(with: url) { data, _, _ in
             guard let data else { return }
             do {
-                let decoded = try JSONDecoder().decode(KeywordListResponse.self, from: data)
+                let decoded = try JSONDecoder().decode(KeywordListResponse.self, from: data) // JSON 디코딩
                 DispatchQueue.main.async {
                     self.keywords = decoded.keywords
                 }
@@ -154,14 +151,3 @@ struct KeywordPickerSheet: View {
     ){_ in }
 }
 
-//#Preview {
-//    KeywordPickerSheet(
-//        selectedKeyword: .constant(
-//            KeywordModel(
-//                id: 1,
-//                name: "상속",
-//                created_at: ""
-//            )
-//        )
-//    )
-//}

@@ -9,22 +9,22 @@ import SwiftUI
 import Combine
 
 class KeyboardResponder: ObservableObject {
-    @Published var currentHeight: CGFloat = 0
-    private var cancellableSet: Set<AnyCancellable> = []
+    @Published var currentHeight: CGFloat = 0 // 현재 키보드 높이 저장
+    private var cancellableSet: Set<AnyCancellable> = [] // Combine 구독 저장 Set
 
     init() {
-        let willShow = NotificationCenter.default
-            .publisher(for: UIResponder.keyboardWillShowNotification)
-            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
-            .map { $0.height }
+        let willShow = NotificationCenter.default // 키보드가 나타날 때 알림 퍼블리셔
+            .publisher(for: UIResponder.keyboardWillShowNotification) // 키보드 나타나는 시스템 알림 감지
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect } // 키보드 프레임 추출
+            .map { $0.height } // 키보드 높이 사용
 
-        let willHide = NotificationCenter.default
-            .publisher(for: UIResponder.keyboardWillHideNotification)
-            .map { _ in CGFloat(0) }
+        let willHide = NotificationCenter.default // 키보드가 사라질 때 알림 퍼블리셔
+            .publisher(for: UIResponder.keyboardWillHideNotification) // 키보드 사라지는 시스템 알림 감지
+            .map { _ in CGFloat(0) } // 높이 0으로 설정
 
         Publishers.Merge(willShow, willHide)
-            .assign(to: \.currentHeight, on: self)
-            .store(in: &cancellableSet)
+            .assign(to: \.currentHeight, on: self) // 키보드 높이 반영
+            .store(in: &cancellableSet) // 구독 저장
     }
 }
 
@@ -32,8 +32,8 @@ struct KeywordDetailView: View {
 
     let keyword: KeywordModel
 
-    @StateObject private var keyboard = KeyboardResponder()
-    @State private var searchText: String = ""
+    @StateObject private var keyboard = KeyboardResponder() // 키보드 높이 변화 감지 객체
+    @State private var searchText: String = "" // 질문 검색어
 
     var body: some View {
         NavigationStack {
@@ -54,7 +54,6 @@ struct KeywordDetailView: View {
         }
     }
 
-    // MARK: - Header
     private var header: some View {
         HStack(spacing: 20) {
             Image(systemName: "photo")
@@ -65,8 +64,8 @@ struct KeywordDetailView: View {
                 Text(keyword.name)
                     .font(.system(size: 20, weight: .bold))
 
-                Text("게시글 \(keyword.question_count)")
-                Text("현재 \(keyword.participant_count)명 참여중")
+                Text("게시글 \(keyword.question_count)") // 질문 수
+                Text("현재 \(keyword.participant_count)명 참여중") // 참여자 수
             }
             .font(.system(size: 15))
             .foregroundStyle(.gray)
@@ -75,7 +74,7 @@ struct KeywordDetailView: View {
         }
     }
 
-    // MARK: - Search
+
     private var searchBar: some View {
         TextField("검색", text: $searchText)
             .padding(10)
@@ -85,7 +84,6 @@ struct KeywordDetailView: View {
             )
     }
 
-    // MARK: - Question List (검색 연동 핵심)
     private var questionList: some View {
         QuestionRowByKeywordGroup(
             keywordId: keyword.id,
@@ -94,7 +92,6 @@ struct KeywordDetailView: View {
         )
     }
 
-    // MARK: - Live Chat
     private var liveChat: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("실시간 채팅")

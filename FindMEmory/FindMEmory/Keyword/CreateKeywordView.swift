@@ -10,17 +10,17 @@ import PhotosUI
 
 
 struct CreateKeywordView: View {
-    @State private var successCreate: Bool = false
-    @Environment(\.dismiss) private var dismiss
+    @State private var successCreate: Bool = false // 키워드 생성 성공 여부 상태
+    @Environment(\.dismiss) private var dismiss // 현 화면 닫기 용
     
-    @State private var showAlert: Bool = false
-    @State private var alertMessage: String = ""
+    @State private var showAlert: Bool = false // 알림창 표시 여부
+    @State private var alertMessage: String = "" // 알림창 메시지
     
-    @State private var keywordName: String = ""
+    @State private var keywordName: String = "" // 입력받은 키워드 이름
     @State private var selectedItem: PhotosPickerItem? = nil
     @State private var selectedImage: UIImage? = nil
     
-    let onComplete: (KeywordModel) -> Void 
+    let onComplete: (KeywordModel) -> Void  // 키워드 생성 완료 후 동작
     
     var body: some View {
         NavigationStack{
@@ -128,18 +128,18 @@ struct CreateKeywordView: View {
         })
     }
     
-    
+    // 키워드 카드 등록 함수
     func registerKeyword() {
         
         guard let url = URL(string: "http://127.0.0.1/findmemory/add_keyword.php") else {
-            print("❌ URL ERROR")
+            print("URL ERROR")
             return
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = "POST" // POST 방식 요청
         
-        let body = "name=\(keywordName)"
+        let body = "name=\(keywordName)" // 바디 파라미터 구성
         let encodedData = body.data(using: .utf8)
         request.httpBody = encodedData
         
@@ -160,14 +160,14 @@ struct CreateKeywordView: View {
             
             do {
                 let decoder = JSONDecoder()
-                let jsonResponse = try decoder.decode(CreateKeywordResponse.self, from: data)
+                let jsonResponse = try decoder.decode(CreateKeywordResponse.self, from: data) // JSON 디코딩
                 
                 DispatchQueue.main.async {
-                    if jsonResponse.success {
+                    if jsonResponse.success { // 등록 성공 시
                         print("등록 성공:", jsonResponse)
                         alertMessage = "키워드 카드가 등록되었습니다."
-                        showAlert = true
-                        dismiss()
+                        showAlert = true // 알림창 띄우기
+                        dismiss() // 화면 닫기
                     } else {
                         print("서버 오류:", jsonResponse.error ?? "오류가 발생했습니다.")
                         alertMessage = jsonResponse.error ?? "등록을 실패했습니다."

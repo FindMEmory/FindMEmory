@@ -9,12 +9,12 @@ import SwiftUI
 
 struct KeywordView: View {
 
-    @State private var keywordQuery: String = ""
+    @State private var keywordQuery: String = "" // 키워드 검색어
 
-    @State private var popularKeywordList: [KeywordModel] = []
-    @State private var recentKeywordList: [KeywordModel] = []
+    @State private var popularKeywordList: [KeywordModel] = [] // 인기 키워드 목록
+    @State private var recentKeywordList: [KeywordModel] = [] // 최근 키워드 목록
 
-    private let gridColumns = [
+    private let gridColumns = [ // 검색 결과 표시용 2열 그리드
         GridItem(.flexible(), spacing: 15),
         GridItem(.flexible(), spacing: 15)
     ]
@@ -28,9 +28,9 @@ struct KeywordView: View {
                 createKeywordButton
                     .padding(.bottom, 10)
 
-                if isSearching {
+                if isSearching { // 검색어가 입력된 상태면
                     searchResultSection
-                } else {
+                } else { // 검색어가 없으면
                     popularKeywordSection
                         .padding(.bottom, 40)
 
@@ -40,33 +40,29 @@ struct KeywordView: View {
                 Spacer()
             }
             .padding(.horizontal, 15)
-            .onAppear {
+            .onAppear { // 화면 진입 시 키워드 목록 조회
                 fetchKeywords(sort: "popular")
                 fetchKeywords(sort: "recent")
             }
         }
     }
 
-    // MARK: - 검색 상태
     var isSearching: Bool {
         !keywordQuery.isEmpty
     }
 
-    // MARK: - 검색 결과 (popular + recent 합침)
     var searchedKeywordList: [KeywordModel] {
-        let combined = popularKeywordList + recentKeywordList
+        let combined = popularKeywordList + recentKeywordList // 두 목록을 하나로 합침
 
-        // id 기준 중복 제거
-        let unique = Dictionary(grouping: combined, by: { $0.id })
+        let unique = Dictionary(grouping: combined, by: { $0.id }) // id 기준 중복 제거
             .compactMap { $0.value.first }
 
         return unique.filter {
-            $0.name.localizedCaseInsensitiveContains(keywordQuery)
+            $0.name.localizedCaseInsensitiveContains(keywordQuery) // 검색어 포함 키워드만 필터링
         }
     }
 
-    // MARK: - API
-    func fetchKeywords(sort: String) {
+    func fetchKeywords(sort: String) { // 정렬 기준 전달
 
         guard let url = URL(
             string: "http://127.0.0.1/findmemory/get_keyword.php?sort=\(sort)"
@@ -89,13 +85,13 @@ struct KeywordView: View {
 
             do {
                 let response = try JSONDecoder()
-                    .decode(KeywordListResponse.self, from: data)
+                    .decode(KeywordListResponse.self, from: data) // JSON 디코딩
 
                 DispatchQueue.main.async {
                     if response.success {
-                        if sort == "popular" {
+                        if sort == "popular" { // 인기 키워드 목록 갱신
                             self.popularKeywordList = response.keywords
-                        } else if sort == "recent" {
+                        } else if sort == "recent" { // 최근 키워드 목록 갱신
                             self.recentKeywordList = response.keywords
                         }
                     }
@@ -107,7 +103,6 @@ struct KeywordView: View {
         }.resume()
     }
 
-    // MARK: - Search Bar
     var searchBar: some View {
         TextField("검색", text: $keywordQuery)
             .padding(10)
@@ -117,7 +112,6 @@ struct KeywordView: View {
             )
     }
 
-    // MARK: - Create Button
     var createKeywordButton: some View {
         HStack {
             Spacer()
@@ -128,7 +122,7 @@ struct KeywordView: View {
         }
     }
 
-    // MARK: - 인기 키워드
+    // 인기 키워드 카드 표시
     var popularKeywordSection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("인기 키워드 카드")
@@ -151,7 +145,7 @@ struct KeywordView: View {
         }
     }
 
-    // MARK: - 최근 키워드
+    // 최근 키워드 카드 표시
     var recentKeywordSection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("최근 키워드 카드")
@@ -174,17 +168,17 @@ struct KeywordView: View {
         }
     }
 
-
+    // 검색 결과
     var searchResultSection: some View {
         VStack(alignment: .leading, spacing: 15) {
 
-            if searchedKeywordList.isEmpty {
+            if searchedKeywordList.isEmpty { // 검색어에 맞는 결과가 없으면
                 Text("검색 결과가 없습니다.")
                     .foregroundColor(.gray)
                     .padding(.top, 20)
             } else {
                 ScrollView {
-                    LazyVGrid(columns: gridColumns, spacing: 20) {
+                    LazyVGrid(columns: gridColumns, spacing: 20) { // 결과 있으면 그리드 형태로 표시
                         ForEach(searchedKeywordList) { item in
                             NavigationLink(
                                 destination: KeywordDetailView(keyword: item)

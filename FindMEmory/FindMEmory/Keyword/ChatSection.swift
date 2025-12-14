@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-// MARK: - DTO
-struct ChatMessageDTO: Codable, Identifiable {
+struct ChatMessageDTO: Codable, Identifiable { // JSON 수신 DTO
     let chat_id: Int
     let keyword_id: Int
     let sender_id: Int
@@ -16,10 +15,10 @@ struct ChatMessageDTO: Codable, Identifiable {
     let created_at: String
     let user_name: String
 
-    var id: Int { chat_id }
+    var id: Int { chat_id } // 고유 ID
 }
 
-extension ChatMessageDTO {
+extension ChatMessageDTO { // UI 전용 모델로 전환
     func toUIMessage(myId: Int) -> Message {
         Message(
             id: chat_id,
@@ -31,7 +30,7 @@ extension ChatMessageDTO {
         )
     }
 
-    private func convertDate(_ str: String) -> Date {
+    private func convertDate(_ str: String) -> Date { // 날짜 Date 타입으로 변환
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         formatter.locale = Locale(identifier: "ko_KR")
@@ -39,8 +38,7 @@ extension ChatMessageDTO {
     }
 }
 
-// MARK: - UI Model
-struct Message: Identifiable {
+struct Message: Identifiable { // UI용 채팅 모델
     let id: Int
     let user: String
     let text: String
@@ -49,23 +47,21 @@ struct Message: Identifiable {
     let profileImage: String
 }
 
-// MARK: - Chat Section
+
 struct ChatSection: View {
 
-    @AppStorage("user_id") private var myUserId: Int = 0
+    @AppStorage("user_id") private var myUserId: Int = 0 // 로그인 사용자 ID
 
-    // 키워드별 채팅
-    let keywordId: Int
+    let keywordId: Int // 현재 채팅이 속한 키워드 ID
 
-    @State private var messages: [Message] = []
-    @State private var newMessage: String = ""
-    @State private var lastId: Int = 0
-    @State private var fetchTimer: Timer?
+    @State private var messages: [Message] = [] // 채팅 메시지 목록
+    @State private var newMessage: String = "" // 새로운 채팅 메시지
+    @State private var lastId: Int = 0 // 마지막 수신 채팅 ID
+    @State private var fetchTimer: Timer? // 메시지 조회 타이머
 
     var body: some View {
         VStack(spacing: 0) {
-
-            ScrollViewReader { proxy in
+            ScrollViewReader { proxy in // 마지막 메시지 자동 스크롤 목적
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(messages) { message in
@@ -75,7 +71,7 @@ struct ChatSection: View {
                     }
                     .padding()
                 }
-                .onChange(of: messages.count) {
+                .onChange(of: messages.count) { // 메시지 개수 변하면 마지막 메시지로 자동 스크롤
                     if let last = messages.last?.id {
                         withAnimation {
                             proxy.scrollTo(last, anchor: .bottom)
@@ -98,22 +94,21 @@ struct ChatSection: View {
         }
     }
 
-    // MARK: - Send Message
     private func sendMessage() {
 
         guard myUserId != 0 else {
-            print("⚠️ 로그인 안 된 상태")
+            print("로그인 안 된 상태")
             return
         }
 
-        guard !newMessage.isEmpty else { return }
+        guard !newMessage.isEmpty else { return } // 빈 메시지 전송 방지
 
         guard let url = URL(string: "http://localhost/findmemory/sendMessage.php") else {
             return
         }
 
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = "POST" // POST 방식 요청
         request.setValue(
             "application/x-www-form-urlencoded",
             forHTTPHeaderField: "Content-Type"
@@ -125,19 +120,19 @@ struct ChatSection: View {
 
         URLSession.shared.dataTask(with: request).resume()
 
-        newMessage = ""
+        newMessage = "" // 입력창 초기화
     }
 
-    // MARK: - Fetch Control
+
     private func startFetchMessage() {
-        stopFetchMessage()
+        stopFetchMessage() // 기존 타이머 정지
         fetchTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             fetchMessages()
-        }
+        } // 새로 타이머 시작
     }
 
     private func stopFetchMessage() {
-        fetchTimer?.invalidate()
+        fetchTimer?.invalidate() // 타이머 무효화
         fetchTimer = nil
     }
 
@@ -157,14 +152,14 @@ struct ChatSection: View {
             guard let data else { return }
 
             do {
-                let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data)
+                let dtos = try JSONDecoder().decode([ChatMessageDTO].self, from: data) // JSON 응답을 DTO 형태로 디코딩
                 guard dtos.isEmpty == false else { return }
 
                 DispatchQueue.main.async {
                     for dto in dtos {
-                        messages.append(dto.toUIMessage(myId: myUserId))
+                        messages.append(dto.toUIMessage(myId: myUserId)) // UI 모델로 변환해서 메시지 목록에 추가
                     }
-                    lastId = dtos.last?.chat_id ?? lastId
+                    lastId = dtos.last?.chat_id ?? lastId // 마지막 메시지 ID 갱신
                 }
             } catch {
                 print("디코딩 오류:", error)
@@ -173,7 +168,7 @@ struct ChatSection: View {
     }
 }
 
-// MARK: - Input View
+
 struct ChatInputView: View {
     @Binding var text: String
     var onSend: () -> Void
@@ -192,14 +187,14 @@ struct ChatInputView: View {
     }
 }
 
-// MARK: - Message Row
+
 struct MessageRow: View {
     let message: Message
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
 
-            if !message.isMe {
+            if !message.isMe { // 상대방 메시지
                 Image(systemName: message.profileImage)
                     .resizable()
                     .frame(width: 36, height: 36)
@@ -225,7 +220,7 @@ struct MessageRow: View {
                 }
 
                 Spacer()
-            } else {
+            } else { // 내가 보낸 메시지
                 Spacer()
 
                 HStack(alignment: .bottom, spacing: 6) {
