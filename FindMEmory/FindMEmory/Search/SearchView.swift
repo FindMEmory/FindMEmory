@@ -11,22 +11,26 @@ struct SearchView: View {
     
     @State private var searchContent: String = ""
     @State private var popularKeywordList: [KeywordModel] = []
+    @State private var questions: [Question] = []
     
     var body: some View {
         NavigationStack{
-            HeaderGroup
-            TextField("검색", text: $searchContent)
-                .padding(8)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.gray, lineWidth: 1)
-                )
-                .padding(.horizontal, 10)
-            KeywordCardGroup
-            QuestionGroup
+            ScrollView{
+                HeaderGroup
+                TextField("검색", text: $searchContent)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.gray, lineWidth: 1)
+                    )
+                    .padding(.horizontal, 10)
+                KeywordCardGroup
+                QuestionGroup
+            }
         }
         .task {
             fetchKeywords(sort: "popular")
+            fetchQuestions()
         }
     }
     
@@ -68,7 +72,24 @@ struct SearchView: View {
     private var QuestionGroup: some View {
         VStack(alignment: .leading, spacing: 10){
             Text("게시글")
-            
+                .padding(.horizontal)
+            VStack(spacing: 0) {
+                ForEach(questions) { q in
+                    QuestionCardView(
+                        card: QuestionCard(
+                            id: q.question_id,
+                            image: Image(systemName: "photo"),
+                            solving: q.is_solved == 1,
+                            title: q.title,
+                            content: q.body,
+                            heartCount: Int(q.like_count),
+                            chattingCount: Int(q.answer_count),
+                            writer: q.author_id,
+                            date: q.created_at
+                        )
+                    )
+                }
+            }
         }
     }
     
@@ -100,12 +121,31 @@ struct SearchView: View {
                             self.popularKeywordList = response.keywords
                         }
                     }
-                    print(popularKeywordList)
                 }
             } catch {
                 print("디코딩 오류:", error)
             }
 
+        }.resume()
+    }
+    
+    
+    private func fetchQuestions() {
+        guard let url = URL(
+            string: "http://127.0.0.1/findmemory/questionList.php?sort=like"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
+                do {
+                    let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.questions = decoded.data
+                    }
+                } catch {
+                    print("Decode 실패:", error)
+                }
+            }
         }.resume()
     }
 }
