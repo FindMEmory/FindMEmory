@@ -172,18 +172,21 @@ struct QuestionDetailView: View {
 
     // 좋아요
     func likeQuestion() {
-        isLiked.toggle()
-        likeCount += isLiked ? 1 : -1
-
         guard let url = URL(string: "http://localhost/findmemory/like_question.php") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = "question_id=\(questionId)&user_id=\(userId)".data(using: .utf8)
+        request.httpBody = "question_id=\(questionId)&user_id=\(userId)"
+            .data(using: .utf8)
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
-        URLSession.shared.dataTask(with: request).resume()
+        URLSession.shared.dataTask(with: request) { _, _, _ in
+            DispatchQueue.main.async {
+                loadDetail() 
+            }
+        }.resume()
     }
+
 
     // 댓글 등록
     func addCommentToServer() {
