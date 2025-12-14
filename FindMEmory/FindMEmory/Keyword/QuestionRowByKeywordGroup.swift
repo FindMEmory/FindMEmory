@@ -43,7 +43,8 @@ struct QuestionRowByKeywordGroup: View {
                 NavigationLink(destination:QuestionListView(
                     sortItem: nil,
                     keywordId: keywordId,
-                    keywordName: keywordName
+                    keywordName: keywordName,
+                    searchKeyword: nil
                 )) {
                     Text("더보기")
                         .foregroundColor(.gray)

@@ -12,6 +12,7 @@ struct QuestionListView: View {
     let sortItem: SortItem?          // 메인 리스트용
     let keywordId: Int?              // 키워드 리스트용
     let keywordName: String?         // 키워드 리스트 타이틀
+    let searchKeyword: String?
 
     @State private var isSolvedFilter: String = "all"
     @State private var questions: [Question] = []
@@ -139,6 +140,8 @@ struct QuestionListView: View {
     private func fetchQuestions() {
         if let keywordId {
             fetchQuestionsByKeyword(keywordId)
+        } else if let searchKeyword {
+            fetchQuestionsBySearch(searchKeyword)
         } else if let sortItem {
             fetchQuestionsBySort(sortItem)
         }
@@ -181,6 +184,27 @@ struct QuestionListView: View {
             }
         }.resume()
     }
+    
+    private func fetchQuestionsBySearch(_ keyword: String) {
+        let encoded = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        guard let url = URL(
+            string: "http://127.0.0.1/findmemory/questionSearch.php?keyword=\(encoded)"
+        ) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data {
+                do {
+                    let decoded = try JSONDecoder().decode(QuestionResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.questions = decoded.data
+                    }
+                } catch {
+                    print("Decode 실패:", error)
+                }
+            }
+        }.resume()
+    }
 }
 
 #Preview {
@@ -189,7 +213,8 @@ struct QuestionListView: View {
     QuestionListView(
         sortItem: SortItem(label: "인기 질문", sortKey: "like"),
         keywordId: nil,
-        keywordName: nil
+        keywordName: nil,
+        searchKeyword: nil
     )
 }
 

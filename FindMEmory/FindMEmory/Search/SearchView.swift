@@ -12,11 +12,13 @@ struct SearchView: View {
     @State private var searchContent: String = ""
     @State private var popularKeywordList: [KeywordModel] = []
     @State private var questions: [Question] = []
+    @State private var goSearchResult = false
     
     var body: some View {
-        NavigationStack{
-            ScrollView{
+        NavigationStack {
+            ScrollView {
                 HeaderGroup
+
                 TextField("검색", text: $searchContent)
                     .padding(8)
                     .background(
@@ -24,15 +26,30 @@ struct SearchView: View {
                             .stroke(.gray, lineWidth: 1)
                     )
                     .padding(.horizontal, 10)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        guard !searchContent.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                        goSearchResult = true
+                    }
+
                 KeywordCardGroup
                 QuestionGroup
             }
-        }
-        .task {
-            fetchKeywords(sort: "popular")
-            fetchQuestions()
+            .navigationDestination(isPresented: $goSearchResult) {
+                QuestionListView(
+                    sortItem: nil,
+                    keywordId: nil,
+                    keywordName: searchContent,
+                    searchKeyword: searchContent
+                )
+            }
+            .task {
+                fetchKeywords(sort: "popular")
+                fetchQuestions()
+            }
         }
     }
+
     
     private var HeaderGroup: some View {
         HStack{
