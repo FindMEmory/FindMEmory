@@ -12,6 +12,7 @@ struct QuestionItemLink: View {
 
     var body: some View {
         let card = QuestionBoxItem(
+            id: question.id,
             image: Image(systemName: "photo"),
             solving: question.is_solved == 1,
             title: question.title,
