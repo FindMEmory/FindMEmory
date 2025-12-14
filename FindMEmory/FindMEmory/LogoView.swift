@@ -15,7 +15,7 @@ struct LogoView: View {
                         Text("로고 또는 스플래시 화면")
                             .font(.title)
                         
-                        NavigationLink("", destination: LoginView(), isActive: $goNext)
+                        NavigationLink("", destination: RootView(), isActive: $goNext)
                             .hidden()
                     }
                     .onAppear {

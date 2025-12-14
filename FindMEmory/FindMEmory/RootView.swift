@@ -9,6 +9,10 @@ import SwiftUI
 
 struct RootView: View {
     @AppStorage("is_logged_in") var isLoggedIn: Bool = false
+    
+    init() {
+        UserDefaults.standard.set(false, forKey: "is_logged_in")
+    }
 
     var body: some View {
         Group {
